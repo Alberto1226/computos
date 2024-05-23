@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import DataTablecustom from "@/Components/Generales/DataTable";
+import CustomSelect from "@/Components/Generales/CustomSelect";
 
 const Index = () => {
     const [modo, setModo] = useState("");
@@ -77,7 +78,7 @@ const Index = () => {
                 const formattedData = response.data.map((unimedida) => ({
                     id: unimedida.id,
                     descripcion: unimedida.descripcion,
-                    distrito: unimedida.id_distrito,
+                    distrito: unimedida.distrito,
                    
                 }));
                 // Establecer los departamentos en el estado
@@ -87,8 +88,30 @@ const Index = () => {
             console.log(error);
         }
     };
+    const [data2, setData2] = useState([]);
+
+    const getDistritos = async () => {
+        try {
+            const response = await axios.get(
+                `${route("Distritos.Distritos.listarDistritos")}`
+            );
+            if (response.status === 200) {
+                console.log('distritos', response)
+                // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
+                const formattedData = response.data.map((distrtio) => ({
+                    id: distrtio.id,
+                    value: distrtio.descripcion,
+                }));
+                // Establecer los departamentos en el estado
+                setData2(formattedData);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
     useEffect(() => {
         getSecciones();
+        getDistritos();
        // return () => setReloadData(false);
     }, [reloadData]);
 
@@ -225,6 +248,12 @@ const Index = () => {
         // Lógica para llenar el formulario con los datos de la unidad de medida a editar
     };
 
+
+    const handleSelectChange = (event) => {
+        setIdDistrito(event);
+        // console.log(event);
+    };
+
     return (
         <>
             <Authenticated>
@@ -283,16 +312,19 @@ const Index = () => {
                                 <label htmlFor="idDistritoInput">
                                     ID de Distrito <code>*</code>
                                 </label>
-                                <input
-                                    type="number"
-                                    className="form-control form-control-border"
-                                    id="idDistritoInput"
-                                    placeholder="ID de Distrito"
-                                    value={idDistrito}
-                                    onChange={(event) =>
-                                        setIdDistrito(event.target.value)
-                                    }
-                                />
+                                
+                                    <CustomSelect
+                                        dataOptions={data2.map((role) => ({
+                                            value: `${role.id} `,
+                                            label: `${role.value}`,
+                                        }))}
+                                        preDefaultValue={parseInt(
+                                            idDistrito
+                                        )}
+                                        setValue={handleSelectChange}
+                                        //isDisabled={depFiltro}
+                                    />
+                               
                             </div>
                         </form>
                     </div>
