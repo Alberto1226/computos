@@ -89,7 +89,7 @@ export default class Menu extends Component {
                                 </li>
                                 <li className="nav-item">
                                     <a
-                                        //href={route("secciones")}
+                                        href={route("Secciones.Secciones.index")}
                                         className="nav-link"
                                     >
                                         <i className="nav-icon fas fa-map-marker-alt" />

@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SeccionesController;
 use Inertia\Inertia;
 
 /*
@@ -33,6 +34,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::prefix('Secciones')->group(function () {
+    Route::controller(SeccionesController::class)->group(function () {
+        //rutas con base al prefijo
+        Route::get('/', 'index')->name('Secciones.Secciones.index');
+        Route::post('/save-seccion', 'store')->name('Secciones.Secciones.store');
+        Route::get('/listar-secciones', 'listarSecciones')->name('Secciones.Secciones.listarSecciones');
+        Route::put('/update-seccione/{id}', 'update')->name('Secciones.Secciones.update');
+       // Route::get('/pdf', 'generatePdf')->name('Reportes.Reportes.generatePdf');
+    });
 });
 
 require __DIR__.'/auth.php';

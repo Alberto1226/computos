@@ -15,6 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->text('descripcion');
             $table->string('id_partidos', 100)->nullable();
+            $table->timestamps();
         });
     }
 

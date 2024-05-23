@@ -16,6 +16,7 @@ return new class extends Migration
             $table->text('nombrePartido');
             $table->text('abrebiatura');
             $table->text('color');
+            $table->timestamps();
         });
     }
 

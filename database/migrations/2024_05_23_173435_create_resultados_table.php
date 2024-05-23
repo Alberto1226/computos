@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_partido')->nullable();
             $table->unsignedBigInteger('id_coalicion')->nullable();
             $table->bigInteger('total')->nullable();
+            $table->timestamps();
         });
     }
 
