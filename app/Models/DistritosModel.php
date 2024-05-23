@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class DistritosModel extends Model
 {
     use HasFactory;
+
+    protected $table = 'distrito';
+    protected $fillable = [
+        'descripcion',
+    ];
+
 }
