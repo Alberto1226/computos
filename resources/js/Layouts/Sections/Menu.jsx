@@ -38,7 +38,7 @@ export default class Menu extends Component {
     };*/
     render() {
         //console.log("Este es el state", this.state);
-        
+
         const mystylelogo = {
             backgroundColor: " rgb(187 170 172)",
             color: "rgb(255, 255, 255)",
@@ -48,15 +48,15 @@ export default class Menu extends Component {
 
         return (
             <div>
-                <aside className="main-sidebar sidebar-dark-primary elevation-4">
+                <aside className="main-sidebar sidebar-dark-primary elevation-4 justify-center">
                     {/* Brand Logo */}
                     <a
                         href="index3.html"
-                        className="brand-link"
+                        className="brand-link justify-center"
                         style={mystylelogo}
                     >
-                        <span className="brand-text font-weight-light">
-                            Control de Gastos
+                        <span className="brand-text ml-3 font-weight-light justify-center">
+                            Computos
                         </span>
                     </a>
                     {/* Sidebar */}
@@ -69,17 +69,69 @@ export default class Menu extends Component {
                                 role="menu"
                                 data-accordion="false"
                             >
-                                
-                                    <li className="nav-item">
-                                        <a
-                                            href={route("dashboard")}
-                                            className="nav-link"
-                                        >
-                                            <i className="nav-icon fas fa-th" />
-                                            <p>Dashboard</p>
-                                        </a>
-                                    </li>
-                               
+                                <li className="nav-item">
+                                    <a
+                                        href={route("dashboard")}
+                                        className="nav-link"
+                                    >
+                                        <i className="nav-icon fas fa-th" />
+                                        <p>Dashboard</p>
+                                    </a>
+                                </li>
+                                <li className="nav-item">
+                                    <a
+                                        //href={route("municipios")}
+                                        className="nav-link"
+                                    >
+                                        <i className="nav-icon fas fa-city" />
+                                        <p>Municipios</p>
+                                    </a>
+                                </li>
+                                <li className="nav-item">
+                                    <a
+                                        //href={route("secciones")}
+                                        className="nav-link"
+                                    >
+                                        <i className="nav-icon fas fa-map-marker-alt" />
+                                        <p>Secciones</p>
+                                    </a>
+                                </li>
+                                <li className="nav-item">
+                                    <a
+                                        //href={route("casillas")}
+                                        className="nav-link"
+                                    >
+                                        <i className="nav-icon fas fa-vote-yea" />
+                                        <p>Casillas</p>
+                                    </a>
+                                </li>
+                                <li className="nav-item">
+                                    <a
+                                        //href={route("partidos-politicos")}
+                                        className="nav-link"
+                                    >
+                                        <i className="nav-icon fas fa-flag" />
+                                        <p>Partidos Políticos</p>
+                                    </a>
+                                </li>
+                                <li className="nav-item">
+                                    <a
+                                        //href={route("coaliciones")}
+                                        className="nav-link"
+                                    >
+                                        <i className="nav-icon fas fa-people-carry" />
+                                        <p>Coaliciones</p>
+                                    </a>
+                                </li>
+                                <li className="nav-item">
+                                    <a
+                                        //href={route("resultados")}
+                                        className="nav-link"
+                                    >
+                                        <i className="nav-icon fas fa-chart-bar" />
+                                        <p>Resultados</p>
+                                    </a>
+                                </li>
 
                                 <li className="nav-item">
                                     <Dropdown.Link
