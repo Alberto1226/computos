@@ -9,13 +9,13 @@ import DataTablecustom from "@/Components/Generales/DataTable";
 const Index = () => {
     const [modo, setModo] = useState("");
     const [reloadData, setReloadData] = useState(false);
-    const [NombrePartido, setNombrePartido] = useState("");
-    const [AbreviaturaPartido, setAbreviaturaPartido] = useState("");
-    const [ColorPartido, setColorPartido] = useState("");
+    const [Descripcion, setDescripcion] = useState("");
+    const [id_partidos, setIdPartidos] = useState("");
+    const [id_eleccion, setIdEleccion] = useState("");
 
     const [modalOpen, setModalOpen] = useState(false);
 
-    const [PartidoPoliticoSeleccionado, setPartidoPoliticoSeleccionado] = useState(null);
+    const [CoalicionSeleccionada, setCoalicionSeleccionada] = useState(null);
 
     const [modalEliminacion, setModalEliminacion] = useState(false);
     const [idDetelete, setIdDetelete] = useState(null);
@@ -25,13 +25,13 @@ const Index = () => {
     };
 
 
-    const AgregarPartidoPolitico = () => {
+    const AgregarCoalicion = () => {
         const formData = new FormData();
-        formData.append("nombre", NombrePartido);
-        formData.append("abreviatura", AbreviaturaPartido);
-        formData.append("color", ColorPartido);
+        formData.append("descripcion", Descripcion);
+        formData.append("id_partidos", id_partidos);
+        formData.append("id_eleccion", id_eleccion);
         axios
-            .post(route("PartidosPoliticos.PartidosPoliticos.store"), formData, {
+            .post(route("Coaliciones.Coaliciones.store"), formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -39,9 +39,9 @@ const Index = () => {
             .then((response) => {
                 if (response.status === 200) {
                     setReloadData(true);
-                    setNombrePartido("");
-                    setAbreviaturaPartido("");
-                    setColorPartido("");
+                    setDescripcion("");
+                    setIdPartidos("");
+                    setIdEleccion("");
 
                     Swal.fire({
                         title: response.data.message,
@@ -64,54 +64,54 @@ const Index = () => {
 
     const PartidosPoliticos = () => {
         if (modo === "Agregar") {
-            AgregarPartidoPolitico();
+            AgregarCoalicion();
         } else if (modo === "Editar") {
-            ActualizaPartidoPolitico();
+            ActualizaCoalicion();
         }
     };
 
     //listar Partidos Politicos
-    const [dataPartidosPoliticos, setDataPartidosPoliticos] = useState([]);
+    const [dataCoalicion, setdataCoalicion] = useState([]);
 
     // Listado de partidos politicos
-    const getPartidosPoliticos = async () => {
+    const getCoalicion = async () => {
         try {
             const response = await axios.get(
-                `${route("PartidosPoliticos.PartidosPoliticos.listarPartidos")}`
+                `${route("Coaliciones.Coaliciones.listarCoaliciones")}`
             );
             if (response.status === 200) {
                 console.log('response', response);
                 // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
-                const formattedData = response.data.map((PartidoPolitico) => ({
-                    id: PartidoPolitico.id,
-                    nombrePartido: PartidoPolitico.nombrePartido,
-                    abreviatura: PartidoPolitico.abrebiatura,
-                    color: PartidoPolitico.color,
+                const formattedData = response.data.map((Coalicion) => ({
+                    id: Coalicion.id,
+                    descripcion: Coalicion.descripcion,
+                    id_partidos: Coalicion.id_partidos,
+                    id_eleccion: Coalicion.id_eleccion,
                 }));
                 // Establecer los departamentos en el estado
-                setDataPartidosPoliticos(formattedData);
+                setdataCoalicion(formattedData);
             }
         } catch (error) {
             console.log(error);
         }
     };
     useEffect(() => {
-        getPartidosPoliticos();
+        getCoalicion();
     }, [reloadData]);
 
     const columns = [
         {
-            name: "Nombre",
-            selector: (row) => row.nombrePartido,
+            name: "Descripcion",
+            selector: (row) => row.descripcion,
         },
        
         {
-            name: "Abreviatura",
-            selector: (row) => row.abreviatura,
+            name: "Partidos",
+            selector: (row) => row.id_partidos,
         },
         {
-            name: "Color",
-            selector: (row) => row.color,
+            name: "Seleccion",
+            selector: (row) => row.id_eleccion,
         },
         
         {
@@ -136,36 +136,35 @@ const Index = () => {
         },
     ];
 
-    const handleEdit = (PartidoPoliticoSeleccionado) => {
+    const handleEdit = (CoalicionSeleccionada) => {
         setModo("Editar");
-        setPartidoPoliticoSeleccionado(PartidoPoliticoSeleccionado);
+        setCoalicionSeleccionada(CoalicionSeleccionada);
         setModalOpen(true);
     };
 
     useEffect(() => {
         // Cuando se abre el modal de edición, establecer los valores de los inputs
-        if (modo === "Editar" && PartidoPoliticoSeleccionado) {
-            setNombrePartido(PartidoPoliticoSeleccionado.nombrePartido);
-            setAbreviaturaPartido(PartidoPoliticoSeleccionado.abreviatura);
-            setColorPartido(PartidoPoliticoSeleccionado.color);
+        if (modo === "Editar" && CoalicionSeleccionada) {
+            setDescripcion(CoalicionSeleccionada.descripcion);
+            setIdPartidos(CoalicionSeleccionada.id_partidos);
+            setIdEleccion(CoalicionSeleccionada.id_eleccion);
           
         } else {
-            setNombrePartido("");
-            setAbreviaturaPartido("");
-            setColorPartido("");            
+            setDescripcion("");
+            setIdPartidos("");
+            setIdEleccion("");            
         }
-    }, [modo, PartidoPoliticoSeleccionado]);
+    }, [modo, CoalicionSeleccionada]);
 
-    const ActualizaPartidoPolitico = () => {
-        const id = PartidoPoliticoSeleccionado?.id; // Obtener el ID del partido politico seleccionado
+    const ActualizaCoalicion = () => {
+        const id = CoalicionSeleccionada?.id; // Obtener el ID del partido politico seleccionado
 
         axios
-        .put(route(`PartidosPoliticos.PartidosPoliticos.update`, { id: id }), null, {
+        .put(route(`Coaliciones.Coaliciones.update`, { id: id }), null, {
             params: {
-                nombre: NombrePartido,
-                abreviatura: AbreviaturaPartido,
-                color: ColorPartido,
-
+                descripcion: Descripcion,
+                id_partidos: id_partidos,
+                id_eleccion: id_eleccion,
             },
             headers: {
                 "Content-Type": "multipart/form-data",
@@ -195,7 +194,7 @@ const Index = () => {
     };
 
     useEffect(() => {
-        getPartidosPoliticos();
+        getCoalicion();
         return () => setReloadData(false);
     }, [reloadData]);
 
@@ -207,7 +206,7 @@ const Index = () => {
     const handleConfirmDelete = () => {
         const id = idDetelete;
         axios
-            .delete(route(`PartidosPoliticos.PartidosPoliticos.destroy`, { id }))
+            .delete(route(`Coaliciones.Coaliciones.destroy`, { id }))
             .then((response) => {
                 if (response.status === 200) {
                     setReloadData(true);
@@ -221,7 +220,7 @@ const Index = () => {
                 }
             })
             .catch((error) => {
-                console.error("Error al eliminar Partido politico:", error);
+                console.error("Error al eliminar Coalicion:", error);
             });
     };
 
@@ -230,7 +229,7 @@ const Index = () => {
         <>
             <Authenticated>
                 <ContainerLTE
-                    title="Partidos Politicos"
+                    title="Coaliciones"
                     buttonadd={
                         <button
                             className="btn btn-success btn-xs "
@@ -243,7 +242,7 @@ const Index = () => {
                         </button>
                     }
                 >
-                    <DataTablecustom columnas={columns} datos={dataPartidosPoliticos} />
+                    <DataTablecustom columnas={columns} datos={dataCoalicion} />
 
                 </ContainerLTE>
                 <ModalCustom
@@ -261,51 +260,51 @@ const Index = () => {
                     }
                 >
                     <div className="card-body">
-                        <h4>Información de los Partidos Politicos</h4>
+                        <h4>Información de las Coaliciones</h4>
                         <br />
                         <form>
                             <div className="form-group">
-                                <label htmlFor="NombrePartidoInput">
-                                    Nombre del Partido <code>*</code>
+                                <label htmlFor="DescripcionInput">
+                                    Descripcion <code>*</code>
                                 </label>
                                 <input
                                     type="text"
                                     className="form-control form-control-border"
-                                    id="NombrePartidoInput"
+                                    id="DescripcionInput"
                                     placeholder="Nombre del Partido"
-                                    value={NombrePartido}
+                                    value={Descripcion}
                                     onChange={(event) =>
-                                        setNombrePartido(event.target.value)
+                                        setDescripcion(event.target.value)
                                     }
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="AbreviaturaPartidoInput">
-                                    Abreviatura <code>*</code>
+                                <label htmlFor="id_partidosInput">
+                                    Partidos <code>*</code>
                                 </label>
                                 <input
                                     type="text"
                                     className="form-control form-control-border"
-                                    id="AbreviaturaPartidoInput"
+                                    id="id_partidosInput"
                                     placeholder="Abreviatura del Partido"
-                                    value={AbreviaturaPartido}
+                                    value={id_partidos}
                                     onChange={(event) =>
-                                        setAbreviaturaPartido(event.target.value)
+                                        setIdPartidos(event.target.value)
                                     }
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="ColorPartidoInput">
-                                    Color <code>*</code>
+                                <label htmlFor="id_eleccionInput">
+                                    Eleccion <code>*</code>
                                 </label>
                                 <input
                                     type="text"
                                     className="form-control form-control-border"
-                                    id="ColorPartidoInput"
+                                    id="id_eleccionInput"
                                     placeholder="Color del Partido"
-                                    value={ColorPartido}
+                                    value={id_eleccion}
                                     onChange={(event) =>
-                                        setColorPartido(event.target.value)
+                                        setIdEleccion(event.target.value)
                                     }
                                 />
                             </div>
@@ -318,12 +317,6 @@ const Index = () => {
                     title="Confirmar Eliminación"
                     btnfooter={
                         <>
-                            {/* <button
-                                className="btn btn-secondary"
-                                onClick={() => setModalEliminacion(false)}
-                            >
-                                Cancelar
-                            </button> */}
                             <button
                                 className="btn btn-danger"
                                 onClick={() => handleConfirmDelete()}
@@ -333,7 +326,7 @@ const Index = () => {
                         </>
                     }
                 >
-                    <p>¿Estás seguro de que quieres eliminar el partido politico?</p>
+                    <p>¿Estás seguro de que quieres eliminar el producto?</p>
                 </ModalCustom>
             </Authenticated>
         </>

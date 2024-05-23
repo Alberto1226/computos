@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SeccionesController;
 use App\Http\Controllers\DitritosController;
 use App\Http\Controllers\PartidosPoliticosController;
+use App\Http\Controllers\CoalicionesController;
 use Inertia\Inertia;
 
 /*
@@ -69,6 +70,16 @@ Route::prefix('PartidosPoliticos')->group(function () {
         Route::get('/listar-partidos', 'listarPartidos')->name('PartidosPoliticos.PartidosPoliticos.listarPartidos');
         Route::put('/update-partido/{id}', 'update')->name('PartidosPoliticos.PartidosPoliticos.update');
         Route::delete('/delete-partido/{id}', 'destroy')->name('PartidosPoliticos.PartidosPoliticos.destroy');
+    });
+});
+
+Route::prefix('Coaliciones')->group(function () {
+    Route::controller(CoalicionesController::class)->group(function () {
+        Route::get('/', 'index')->name('Coaliciones.Coaliciones.index');
+        Route::post('/save-coalicion', 'store')->name('Coaliciones.Coaliciones.store');
+        Route::get('/listar-coaliciones', 'listarCoaliciones')->name('Coaliciones.Coaliciones.listarCoaliciones');
+        Route::put('/update-coalicion/{id}', 'update')->name('Coaliciones.Coaliciones.update');
+        Route::delete('/delete-coalicion/{id}', 'destroy')->name('Coaliciones.Coaliciones.destroy');
     });
 });
 

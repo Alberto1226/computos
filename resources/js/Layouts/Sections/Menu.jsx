@@ -116,7 +116,7 @@ export default class Menu extends Component {
                                 </li>
                                 <li className="nav-item">
                                     <a
-                                        //href={route("coaliciones")}
+                                        href={route("Coaliciones.Coaliciones.index")}
                                         className="nav-link"
                                     >
                                         <i className="nav-icon fas fa-people-carry" />

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use App\Models\CoalicionesModel;
 
 class CoalicionesController extends Controller
 {
@@ -11,7 +13,7 @@ class CoalicionesController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('Coaliciones/index');
     }
 
     /**
@@ -27,7 +29,24 @@ class CoalicionesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validar los datos del formulario
+        $request->validate([
+            'descripcion' => 'required|string',
+            'id_partidos' => 'required|string',
+            'id_eleccion' => 'required|string',
+        ]);
+
+        // Crear una nueva instancia de Coalicion con los datos del formulario
+        $coalicion = new CoalicionesModel();
+        $coalicion->descripcion = $request->descripcion;
+        $coalicion->id_partidos = $request->id_partidos;
+        $coalicion->id_eleccion = $request->id_eleccion;
+
+        // Guardar la coalición en la base de datos
+        $coalicion->save();
+
+        // Devolver una respuesta
+        return response()->json(['message' => 'Coalición creada correctamente'], 200);
     }
 
     /**
@@ -51,7 +70,15 @@ class CoalicionesController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $coalicion = CoalicionesModel::find($id);
+
+        $coalicion->descripcion = $request->descripcion;
+        $coalicion->id_partidos = $request->id_partidos;
+        $coalicion->id_eleccion = $request->id_eleccion;
+
+        $coalicion->save();
+
+        return response()->json(['message' => 'Coalición actualizada correctamente'], 200);
     }
 
     /**
@@ -59,6 +86,16 @@ class CoalicionesController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $coalicion = CoalicionesModel::find($id);
+
+        $coalicion->delete();
+
+        return response()->json(['message' => 'Coalición eliminada correctamente'], 200);
+    }
+
+    public function listarCoaliciones()
+    {
+        $coaliciones = CoalicionesModel::all();
+        return response()->json($coaliciones);
     }
 }
