@@ -107,7 +107,7 @@ export default class Menu extends Component {
                                 </li>
                                 <li className="nav-item">
                                     <a
-                                        //href={route("partidos-politicos")}
+                                        href={route("PartidosPoliticos.PartidosPoliticos.index")}
                                         className="nav-link"
                                     >
                                         <i className="nav-icon fas fa-flag" />

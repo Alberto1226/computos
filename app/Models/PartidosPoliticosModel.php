@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class PartidosPoliticosModel extends Model
 {
     use HasFactory;
+
+    protected $table = 'partidospoliticos';
+    protected $fillable = [
+        'nombrePartido',
+        'abrebiatura',
+        'color'
+    ];
 }
