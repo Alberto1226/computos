@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SeccionesController;
 use App\Http\Controllers\DitritosController;
+use App\Http\Controllers\PartidosPoliticosController;
 use Inertia\Inertia;
 
 /*
@@ -58,6 +59,16 @@ Route::prefix('Secciones')->group(function () {
         Route::put('/update-seccione/{id}', 'update')->name('Secciones.Secciones.update');
         Route::delete('/delete-secciones/{id}', 'destroy')->name('Secciones.Secciones.destroy');
        // Route::get('/pdf', 'generatePdf')->name('Reportes.Reportes.generatePdf');
+    });
+});
+
+Route::prefix('PartidosPoliticos')->group(function () {
+    Route::controller(PartidosPoliticosController::class)->group(function () {
+        Route::get('/', 'index')->name('PartidosPoliticos.PartidosPoliticos.index');
+        Route::post('/save-partido', 'store')->name('PartidosPoliticos.PartidosPoliticos.store');
+        Route::get('/listar-partidos', 'listarPartidos')->name('PartidosPoliticos.PartidosPoliticos.listarPartidos');
+        Route::put('/update-partido/{id}', 'update')->name('PartidosPoliticos.PartidosPoliticos.update');
+        Route::delete('/delete-partido/{id}', 'destroy')->name('PartidosPoliticos.PartidosPoliticos.destroy');
     });
 });
 
