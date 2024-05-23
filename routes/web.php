@@ -7,6 +7,7 @@ use App\Http\Controllers\SeccionesController;
 use App\Http\Controllers\DitritosController;
 use App\Http\Controllers\PartidosPoliticosController;
 use App\Http\Controllers\CoalicionesController;
+use App\Http\Controllers\CasillasController;
 use Inertia\Inertia;
 
 /*
@@ -80,6 +81,16 @@ Route::prefix('Coaliciones')->group(function () {
         Route::get('/listar-coaliciones', 'listarCoaliciones')->name('Coaliciones.Coaliciones.listarCoaliciones');
         Route::put('/update-coalicion/{id}', 'update')->name('Coaliciones.Coaliciones.update');
         Route::delete('/delete-coalicion/{id}', 'destroy')->name('Coaliciones.Coaliciones.destroy');
+    });
+});
+
+Route::prefix('Casillas')->group(function () {
+    Route::controller(CasillasController::class)->group(function () {
+        Route::get('/', 'index')->name('Casillas.Casillas.index');
+        Route::post('/save-casilla', 'store')->name('Casillas.Casillas.store');
+        Route::get('/listar-casillas', 'listarCasillas')->name('Casillas.Casillas.listarCasillas');
+        Route::put('/update-casilla/{id}', 'update')->name('Casillas.Casillas.update');
+        Route::delete('/delete-casilla/{id}', 'destroy')->name('Casillas.Casillas.destroy');
     });
 });
 

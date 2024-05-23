@@ -8,4 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class CasillasModel extends Model
 {
     use HasFactory;
+
+    protected $table = 'casilla';
+
+    protected $fillable = [
+        'id_seccion',
+        'tipoCasilla',
+        'listaNominal',
+        'votosNulos',
+        'votosTotales',
+        'ubicacion',
+    ];
 }

@@ -9,13 +9,18 @@ import DataTablecustom from "@/Components/Generales/DataTable";
 const Index = () => {
     const [modo, setModo] = useState("");
     const [reloadData, setReloadData] = useState(false);
-    const [Descripcion, setDescripcion] = useState("");
-    const [id_partidos, setIdPartidos] = useState("");
-    const [id_eleccion, setIdEleccion] = useState("");
+    
+    const [id_seccion, setIdSeccion] = useState("");
+    const [tipoCasilla, setTipoCasilla] = useState("");
+    const [listaNominal, setListaNominal] = useState("");
+    const [votosNulos, setVotosNulos ] = useState("");
+    const [votosTotales, setVotosTotales] = useState("");
+    const [ubicacion, setUbicacion] = useState("");
+
 
     const [modalOpen, setModalOpen] = useState(false);
 
-    const [CoalicionSeleccionada, setCoalicionSeleccionada] = useState(null);
+    const [CasillaSeleccionada, setCasillaSeleccionada] = useState(null);
 
     const [modalEliminacion, setModalEliminacion] = useState(false);
     const [idDetelete, setIdDetelete] = useState(null);
@@ -25,13 +30,17 @@ const Index = () => {
     };
 
 
-    const AgregarCoalicion = () => {
+    const AgregarCasilla = () => {
         const formData = new FormData();
-        formData.append("descripcion", Descripcion);
-        formData.append("id_partidos", id_partidos);
-        formData.append("id_eleccion", id_eleccion);
+        formData.append("id_seccion", id_seccion);
+        formData.append("tipoCasilla", tipoCasilla);
+        formData.append("listaNominal", listaNominal);
+        formData.append("votosNulos", votosNulos);
+        formData.append("votosTotales", votosTotales);
+        formData.append("ubicacion", ubicacion);
+
         axios
-            .post(route("Coaliciones.Coaliciones.store"), formData, {
+            .post(route("Casillas.Casillas.store"), formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -39,9 +48,6 @@ const Index = () => {
             .then((response) => {
                 if (response.status === 200) {
                     setReloadData(true);
-                    setDescripcion("");
-                    setIdPartidos("");
-                    setIdEleccion("");
 
                     Swal.fire({
                         title: response.data.message,
@@ -62,56 +68,72 @@ const Index = () => {
             });
     };
 
-    const Coalicion = () => {
+    const CasillasDonde = () => {
         if (modo === "Agregar") {
-            AgregarCoalicion();
+            AgregarCasilla();
         } else if (modo === "Editar") {
-            ActualizaCoalicion();
+            ActualizaCasilla();
         }
     };
 
     //listar Partidos Politicos
-    const [dataCoalicion, setdataCoalicion] = useState([]);
+    const [dataCasilla, setdataCasilla] = useState([]);
 
     // Listado de partidos politicos
-    const getCoalicion = async () => {
+    const getCasillas = async () => {
         try {
             const response = await axios.get(
-                `${route("Coaliciones.Coaliciones.listarCoaliciones")}`
+                `${route("Casillas.Casillas.listarCasillas")}`
             );
             if (response.status === 200) {
                 console.log('response', response);
                 // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
-                const formattedData = response.data.map((Coalicion) => ({
-                    id: Coalicion.id,
-                    descripcion: Coalicion.descripcion,
-                    id_partidos: Coalicion.id_partidos,
-                    id_eleccion: Coalicion.id_eleccion,
+                const formattedData = response.data.map((Casilla) => ({
+                    id: Casilla.id,
+                    id_seccion: Casilla.id_seccion,
+                    tipoCasilla: Casilla.tipoCasilla,
+                    listaNominal: Casilla.listaNominal,
+                    votosNulos: Casilla.votosNulos,
+                    votosTotales: Casilla.votosTotales,
+                    ubicacion: Casilla.ubicacion,
                 }));
                 // Establecer los departamentos en el estado
-                setdataCoalicion(formattedData);
+                setdataCasilla(formattedData);
             }
         } catch (error) {
             console.log(error);
         }
     };
     useEffect(() => {
-        getCoalicion();
+        getCasillas();
     }, [reloadData]);
 
     const columns = [
         {
-            name: "Descripcion",
-            selector: (row) => row.descripcion,
+            name: "id_seccion",
+            selector: (row) => row.id_seccion,
         },
        
         {
-            name: "Partidos",
-            selector: (row) => row.id_partidos,
+            name: "Tipo de Casilla",
+            selector: (row) => row.tipoCasilla,
         },
         {
-            name: "Seleccion",
-            selector: (row) => row.id_eleccion,
+            name: "Lista Nominal",
+            selector: (row) => row.listaNominal,
+        },
+        {
+            name: "Votos Nulos",
+            selector: (row) => row.votosNulos,
+        },
+       
+        {
+            name: "Votos Totales",
+            selector: (row) => row.votosTotales,
+        },
+        {
+            name: "Ubicación",
+            selector: (row) => row.ubicacion,
         },
         
         {
@@ -136,35 +158,38 @@ const Index = () => {
         },
     ];
 
-    const handleEdit = (CoalicionSeleccionada) => {
+    const handleEdit = (CasillaSeleccionada) => {
         setModo("Editar");
-        setCoalicionSeleccionada(CoalicionSeleccionada);
+        setCasillaSeleccionada(CasillaSeleccionada);
         setModalOpen(true);
     };
 
     useEffect(() => {
         // Cuando se abre el modal de edición, establecer los valores de los inputs
-        if (modo === "Editar" && CoalicionSeleccionada) {
-            setDescripcion(CoalicionSeleccionada.descripcion);
-            setIdPartidos(CoalicionSeleccionada.id_partidos);
-            setIdEleccion(CoalicionSeleccionada.id_eleccion);
+        if (modo === "Editar" && CasillaSeleccionada) {
+            setIdSeccion(CasillaSeleccionada.id_seccion);
+            setTipoCasilla(CasillaSeleccionada.tipoCasilla);
+            setListaNominal(CasillaSeleccionada.listaNominal);
           
         } else {
-            setDescripcion("");
-            setIdPartidos("");
-            setIdEleccion("");            
+            setIdSeccion("");
+            setTipoCasilla("");
+            setListaNominal("");            
         }
-    }, [modo, CoalicionSeleccionada]);
+    }, [modo, CasillaSeleccionada]);
 
-    const ActualizaCoalicion = () => {
-        const id = CoalicionSeleccionada?.id; // Obtener el ID del partido politico seleccionado
+    const ActualizaCasilla = () => {
+        const id = CasillaSeleccionada?.id; // Obtener el ID del partido politico seleccionado
 
         axios
-        .put(route(`Coaliciones.Coaliciones.update`, { id: id }), null, {
+        .put(route(`Casillas.Casillas.update`, { id: id }), null, {
             params: {
-                descripcion: Descripcion,
-                id_partidos: id_partidos,
-                id_eleccion: id_eleccion,
+                id_seccion: id_seccion,
+                tipoCasilla: tipoCasilla,
+                listaNominal: listaNominal,
+                votosNulos: votosNulos,
+                votosTotales: votosTotales,
+                ubicacion: ubicacion,
             },
             headers: {
                 "Content-Type": "multipart/form-data",
@@ -194,7 +219,7 @@ const Index = () => {
     };
 
     useEffect(() => {
-        getCoalicion();
+        getCasillas();
         return () => setReloadData(false);
     }, [reloadData]);
 
@@ -206,7 +231,7 @@ const Index = () => {
     const handleConfirmDelete = () => {
         const id = idDetelete;
         axios
-            .delete(route(`Coaliciones.Coaliciones.destroy`, { id }))
+            .delete(route(`Casillas.Casillas.destroy`, { id }))
             .then((response) => {
                 if (response.status === 200) {
                     setReloadData(true);
@@ -220,7 +245,7 @@ const Index = () => {
                 }
             })
             .catch((error) => {
-                console.error("Error al eliminar Coalicion:", error);
+                console.error("Error al eliminar Casilla:", error);
             });
     };
 
@@ -229,7 +254,7 @@ const Index = () => {
         <>
             <Authenticated>
                 <ContainerLTE
-                    title="Coaliciones"
+                    title="Casillas"
                     buttonadd={
                         <button
                             className="btn btn-success btn-xs "
@@ -242,7 +267,7 @@ const Index = () => {
                         </button>
                     }
                 >
-                    <DataTablecustom columnas={columns} datos={dataCoalicion} />
+                    <DataTablecustom columnas={columns} datos={dataCasilla} />
 
                 </ContainerLTE>
                 <ModalCustom
@@ -253,58 +278,103 @@ const Index = () => {
                     btnfooter={
                         <button
                             className="btn btn-primary float-end"
-                            onClick={Coalicion}
+                            onClick={CasillasDonde}
                         >
                             <span className="fas fa-save" /> Guardar
                         </button>
                     }
                 >
                     <div className="card-body">
-                        <h4>Información de las Coaliciones</h4>
+                        <h4>Información de las Casillas</h4>
                         <br />
                         <form>
                             <div className="form-group">
-                                <label htmlFor="DescripcionInput">
-                                    Descripcion <code>*</code>
+                                <label htmlFor="id_seccionInput">
+                                    id_seccion <code>*</code>
                                 </label>
                                 <input
                                     type="text"
                                     className="form-control form-control-border"
-                                    id="DescripcionInput"
-                                    placeholder="descripcion"
-                                    value={Descripcion}
+                                    id="id_seccionInput"
+                                    placeholder="seccion"
+                                    value={id_seccion}
                                     onChange={(event) =>
-                                        setDescripcion(event.target.value)
+                                        setIdSeccion(event.target.value)
                                     }
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="id_partidosInput">
-                                    Partidos <code>*</code>
+                                <label htmlFor="tipoCasillaInput">
+                                    Tipo de Casilla <code>*</code>
                                 </label>
                                 <input
                                     type="text"
                                     className="form-control form-control-border"
-                                    id="id_partidosInput"
-                                    placeholder="partidos"
-                                    value={id_partidos}
+                                    id="tipoCasillaInput"
+                                    placeholder="tipo de casilla"
+                                    value={tipoCasilla}
                                     onChange={(event) =>
-                                        setIdPartidos(event.target.value)
+                                        setTipoCasilla(event.target.value)
                                     }
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="id_eleccionInput">
-                                    Eleccion <code>*</code>
+                                <label htmlFor="listaNominalInput">
+                                    Lista Nominal<code>*</code>
                                 </label>
                                 <input
                                     type="text"
                                     className="form-control form-control-border"
-                                    id="id_eleccionInput"
-                                    placeholder="eleccion"
-                                    value={id_eleccion}
+                                    id="listaNominalInput"
+                                    placeholder="lista nominal"
+                                    value={listaNominal}
                                     onChange={(event) =>
-                                        setIdEleccion(event.target.value)
+                                        setListaNominal(event.target.value)
+                                    }
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="VotosNulosInput">
+                                    Votos Nulos<code>*</code>
+                                </label>
+                                <input
+                                    type="text"
+                                    className="form-control form-control-border"
+                                    id="VotosNulosInput"
+                                    placeholder="votos nulos"
+                                    value={votosNulos}
+                                    onChange={(event) =>
+                                        setVotosNulos(event.target.value)
+                                    }
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="VotosTotalesInput">
+                                    Votos Totales<code>*</code>
+                                </label>
+                                <input
+                                    type="text"
+                                    className="form-control form-control-border"
+                                    id="VotosTotalesInput"
+                                    placeholder="votos totales"
+                                    value={votosTotales}
+                                    onChange={(event) =>
+                                        setVotosTotales(event.target.value)
+                                    }
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="UbicacionInput">
+                                    Ubicacion<code>*</code>
+                                </label>
+                                <input
+                                    type="text"
+                                    className="form-control form-control-border"
+                                    id="UbicacionInput"
+                                    placeholder="ubicacion"
+                                    value={ubicacion}
+                                    onChange={(event) =>
+                                        setUbicacion(event.target.value)
                                     }
                                 />
                             </div>
@@ -326,7 +396,7 @@ const Index = () => {
                         </>
                     }
                 >
-                    <p>¿Estás seguro de que quieres eliminar la coalicion?</p>
+                    <p>¿Estás seguro de que quieres eliminar la casilla?</p>
                 </ModalCustom>
             </Authenticated>
         </>
