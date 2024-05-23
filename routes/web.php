@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SeccionesController;
+use App\Http\Controllers\DitritosController;
 use Inertia\Inertia;
 
 /*
@@ -36,6 +37,18 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::prefix('Distritos')->group(function () {
+    Route::controller(DitritosController::class)->group(function () {
+        //rutas con base al prefijo
+        Route::get('/', 'index')->name('Distritos.Distritos.index');
+        Route::post('/save-distrito', 'store')->name('Distritos.Distritos.store');
+        Route::get('/list-distritos/', 'listarDistritos')->name('Distritos.Distritos.listarDistritos');
+        Route::put('/update-distrito/{id}', 'update')->name('Distritos.Distritos.update');
+        Route::delete('/delete-distrito/{id}', 'destroy')->name('Distritos.Distritos.destroy');
+    });
+});
+
+
 Route::prefix('Secciones')->group(function () {
     Route::controller(SeccionesController::class)->group(function () {
         //rutas con base al prefijo
@@ -43,6 +56,7 @@ Route::prefix('Secciones')->group(function () {
         Route::post('/save-seccion', 'store')->name('Secciones.Secciones.store');
         Route::get('/listar-secciones', 'listarSecciones')->name('Secciones.Secciones.listarSecciones');
         Route::put('/update-seccione/{id}', 'update')->name('Secciones.Secciones.update');
+        Route::delete('/delete-secciones/{id}', 'destroy')->name('Secciones.Secciones.destroy');
        // Route::get('/pdf', 'generatePdf')->name('Reportes.Reportes.generatePdf');
     });
 });

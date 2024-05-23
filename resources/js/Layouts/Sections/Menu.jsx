@@ -80,11 +80,11 @@ export default class Menu extends Component {
                                 </li>
                                 <li className="nav-item">
                                     <a
-                                        //href={route("municipios")}
+                                        href={route("Distritos.Distritos.index")}
                                         className="nav-link"
                                     >
                                         <i className="nav-icon fas fa-city" />
-                                        <p>Municipios</p>
+                                        <p>Distritos</p>
                                     </a>
                                 </li>
                                 <li className="nav-item">
