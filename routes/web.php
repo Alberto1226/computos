@@ -43,6 +43,7 @@ Route::prefix('Secciones')->group(function () {
         Route::post('/save-seccion', 'store')->name('Secciones.Secciones.store');
         Route::get('/listar-secciones', 'listarSecciones')->name('Secciones.Secciones.listarSecciones');
         Route::put('/update-seccione/{id}', 'update')->name('Secciones.Secciones.update');
+        Route::delete('/delete-secciones/{id}', 'destroy')->name('Secciones.Secciones.destroy');
        // Route::get('/pdf', 'generatePdf')->name('Reportes.Reportes.generatePdf');
     });
 });

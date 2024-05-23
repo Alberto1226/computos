@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\SeccionesModel;
+use Illuminate\Http\Response;
 
 class SeccionesController extends Controller
 {
@@ -100,8 +101,16 @@ class SeccionesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        // Buscar la instancia de la unidad de medida que se desea eliminar
+        $unidadMedida = SeccionesModel::findOrFail($id);
+
+        // Eliminar la unidad de medida de la base de datos
+        $unidadMedida->delete();
+
+        // Redireccionar a una página de éxito o enviar una respuesta JSON
+        // En este caso, simplemente devolvemos una respuesta JSON indicando que se ha eliminado correctamente
+        return response()->json(['message' => 'Seccion eliminada correctamente'], Response::HTTP_OK);
     }
 }

@@ -13,6 +13,9 @@ const Index = () => {
     const [idDistrito, setIdDistrito] = useState("");
     const [unidadMedidaSeleccionada, setUnidadMedidaSeleccionada] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
+    const [idDetelete, setidDetelete] = useState(null);
+    const [modalOpen2, setModalOpen2] = useState(false);
+
     const handleCloseModal = () => {
         setModalOpen(false);
     };
@@ -189,6 +192,39 @@ const Index = () => {
         }
     }, [modo, unidadMedidaSeleccionada]);
 
+
+    //eliminar
+    const handleConfirmDelete = () => {
+        const id = idDetelete;
+        axios
+        .delete(route(`Secciones.Secciones.destroy`, { id }))
+        .then((response) => {
+          if (response.status === 200) {
+            setReloadData(true);
+            Swal.fire({
+                title: response.data.message,
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1600,
+            });
+            setModalOpen2(false);
+          }
+        })
+        .catch((error) => {
+          console.error("Error al eliminar la unidad de medida:", error);
+        });
+         
+    };
+
+    const handleDelete = (idDetelete) => {
+        // Aquí puedes realizar cualquier acción necesaria antes de abrir el modal de edición
+        // Por ejemplo, puedes recuperar los datos de la unidad de medida con el ID proporcionado y llenar el formulario con ellos
+        console.log('clic'+idDetelete);
+        setidDetelete(idDetelete); // Pasar la unidad de medida seleccionada
+        setModalOpen2(true);
+        // Lógica para llenar el formulario con los datos de la unidad de medida a editar
+    };
+
     return (
         <>
             <Authenticated>
@@ -260,6 +296,31 @@ const Index = () => {
                             </div>
                         </form>
                     </div>
+                </ModalCustom>
+                <ModalCustom
+                    isOpen={modalOpen2}
+                    onClose={() => setModalOpen2(false)}
+                    title="Confirmar Eliminación"
+                    btnfooter={
+                        <>
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() => setModalOpen2(false)}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="btn btn-danger"
+                                onClick={() => handleConfirmDelete()}
+                            >
+                                Eliminar
+                            </button>
+                        </>
+                    }
+                >
+                    <p>
+                        ¿Estás seguro de que quieres eliminar esta seccion?
+                    </p>
                 </ModalCustom>
             </Authenticated>
         </>
