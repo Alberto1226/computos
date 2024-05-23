@@ -6,6 +6,8 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\SeccionesModel;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
+
 
 class SeccionesController extends Controller
 {
@@ -51,10 +53,13 @@ class SeccionesController extends Controller
     public function listarSecciones()
     {
         // Obtener todas las secciones
-        $secciones = SeccionesModel::all();
+        $seccionesConDistrito = DB::table('secciones')
+            ->join('distrito', 'secciones.id_distrito', '=', 'distrito.id')
+            ->select('secciones.id', 'secciones.descripcion', 'secciones.created_at', 'secciones.updated_at', 'distrito.descripcion as distrito')
+            ->get();
 
         // Devolver las secciones como respuesta JSON
-        return response()->json($secciones);
+        return response()->json($seccionesConDistrito);
     }
 
     /**
