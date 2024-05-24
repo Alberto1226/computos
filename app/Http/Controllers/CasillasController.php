@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\CasillasModel;
+use League\Csv\Reader;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class CasillasController extends Controller
 {
@@ -33,7 +36,6 @@ class CasillasController extends Controller
         $request->validate([
             'id_seccion' => 'required|int',
             'tipoCasilla' => 'required|string',
-            'listaNominal' => 'required|int',
             'votosNulos' => 'nullable|int',
             'votosTotales' => 'nullable|int',
             'ubicacion' => 'required|string',
@@ -43,7 +45,6 @@ class CasillasController extends Controller
         $casilla = new CasillasModel();
         $casilla->id_seccion = $request->id_seccion;
         $casilla->tipoCasilla = $request->tipoCasilla;
-        $casilla->listaNominal = $request->listaNominal;
         $casilla->votosNulos = $request->votosNulos;
         $casilla->votosTotales = $request->votosTotales;
         $casilla->ubicacion = $request->ubicacion;
@@ -54,6 +55,39 @@ class CasillasController extends Controller
         // Devolver una respuesta
         return response()->json(['message' => 'Casilla creada correctamente'], 200);
     }
+
+    public function storeFromCSV(Request $request)
+    {
+        // Validar los datos del formulario
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:2048',
+        ]);
+
+        // Obtener el archivo CSV del formulario
+        $csvFile = $request->file('csv_file');
+
+        // Abrir el archivo CSV y leer su contenido
+        $csvReader = Reader::createFromPath($csvFile->getPathname(), 'r');
+        $csvReader->setHeaderOffset(0);
+        $csvReader->setDelimiter(',');
+
+        // Iterar sobre cada fila del archivo CSV y crear una casilla para cada una
+        foreach ($csvReader as $row) {
+            $casilla = new CasillasModel();
+            $casilla->id_seccion = (int) $row['id_seccion'];
+            $casilla->tipoCasilla = $row['tipoCasilla'];
+            $casilla->votosNulos = isset($row['votosNulos']) ? (int) $row['votosNulos'] : null;
+            $casilla->votosTotales = isset($row['votosTotales']) ? (int) $row['votosTotales'] : null;
+            $casilla->ubicacion = $row['ubicacion'];
+
+            // Guardar la casilla en la base de datos
+            $casilla->save();
+        }
+
+        // Devolver una respuesta
+        return response()->json(['message' => 'Casillas cargadas correctamente desde el archivo CSV!'], 200);
+    }
+
 
     /**
      * Display the specified resource.
@@ -80,9 +114,8 @@ class CasillasController extends Controller
         $request->validate([
             'id_seccion' => 'required|int',
             'tipoCasilla' => 'required|string',
-            'listaNominal' => 'required|int',
-            'votosNulos' => 'required|int',
-            'votosTotales' => 'required|int',
+            'votosNulos' => 'nullable|int',
+            'votosTotales' => 'nullable|int',
             'ubicacion' => 'required|string',
         ]);
 
@@ -90,7 +123,6 @@ class CasillasController extends Controller
 
         $casilla->id_seccion = $request->id_seccion;
         $casilla->tipoCasilla = $request->tipoCasilla;
-        $casilla->listaNominal = $request->listaNominal;
         $casilla->votosNulos = $request->votosNulos;
         $casilla->votosTotales = $request->votosTotales;
         $casilla->ubicacion = $request->ubicacion;

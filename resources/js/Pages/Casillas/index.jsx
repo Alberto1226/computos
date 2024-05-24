@@ -10,14 +10,13 @@ import CustomSelect from "@/Components/Generales/CustomSelect";
 const Index = () => {
     const [modo, setModo] = useState("");
     const [reloadData, setReloadData] = useState(false);
-    
+
     const [id_seccion, setIdSeccion] = useState("");
     const [tipoCasilla, setTipoCasilla] = useState("");
-    const [listaNominal, setListaNominal] = useState("");
-    const [votosNulos, setVotosNulos ] = useState("");
+    
+    const [votosNulos, setVotosNulos] = useState("");
     const [votosTotales, setVotosTotales] = useState("");
     const [ubicacion, setUbicacion] = useState("");
-
 
     const [modalOpen, setModalOpen] = useState(false);
 
@@ -30,12 +29,11 @@ const Index = () => {
         setModalOpen(false);
     };
 
-
     const AgregarCasilla = () => {
         const formData = new FormData();
         formData.append("id_seccion", id_seccion);
         formData.append("tipoCasilla", tipoCasilla);
-        formData.append("listaNominal", listaNominal);
+        
         formData.append("votosNulos", votosNulos);
         formData.append("votosTotales", votosTotales);
         formData.append("ubicacion", ubicacion);
@@ -51,7 +49,7 @@ const Index = () => {
                     setReloadData(true);
                     setIdSeccion("");
                     setTipoCasilla("");
-                    setListaNominal("");
+                    
                     setVotosNulos("");
                     setVotosTotales("");
                     setUbicacion("");
@@ -92,13 +90,13 @@ const Index = () => {
                 `${route("Casillas.Casillas.listarCasillas")}`
             );
             if (response.status === 200) {
-                console.log('response', response);
+                console.log("response", response);
                 // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
                 const formattedData = response.data.map((Casilla) => ({
                     id: Casilla.id,
                     id_seccion: Casilla.id_seccion,
                     tipoCasilla: Casilla.tipoCasilla,
-                    listaNominal: Casilla.listaNominal,
+                    
                     votosNulos: Casilla.votosNulos,
                     votosTotales: Casilla.votosTotales,
                     ubicacion: Casilla.ubicacion,
@@ -123,7 +121,6 @@ const Index = () => {
                 const formattedData = response.data.map((unimedida) => ({
                     id: unimedida.id,
                     value: unimedida.descripcion,
-                   
                 }));
                 // Establecer los departamentos en el estado
                 setDataSeccion(formattedData);
@@ -142,20 +139,17 @@ const Index = () => {
             name: "id_seccion",
             selector: (row) => row.id_seccion,
         },
-       
+
         {
             name: "Tipo de Casilla",
             selector: (row) => row.tipoCasilla,
         },
-        {
-            name: "Lista Nominal",
-            selector: (row) => row.listaNominal,
-        },
+        
         {
             name: "Ubicación",
             selector: (row) => row.ubicacion,
         },
-        
+
         {
             name: "Acciones",
             cell: (row) => (
@@ -189,17 +183,15 @@ const Index = () => {
         if (modo === "Editar" && CasillaSeleccionada) {
             setIdSeccion(CasillaSeleccionada.id_seccion);
             setTipoCasilla(CasillaSeleccionada.tipoCasilla);
-            setListaNominal(CasillaSeleccionada.listaNominal);
-            setUbicacion(CasillaSeleccionada.ubicacion);     
-          
-        } else {
             
+            setUbicacion(CasillaSeleccionada.ubicacion);
+        } else {
             setIdSeccion("");
             setTipoCasilla("");
-            setListaNominal("");
+            
             setVotosNulos("");
             setVotosTotales("");
-            setUbicacion("");       
+            setUbicacion("");
         }
     }, [modo, CasillaSeleccionada]);
 
@@ -207,40 +199,40 @@ const Index = () => {
         const id = CasillaSeleccionada?.id; // Obtener el ID del partido politico seleccionado
 
         axios
-        .put(route(`Casillas.Casillas.update`, { id: id }), null, {
-            params: {
-                id_seccion: id_seccion,
-                tipoCasilla: tipoCasilla,
-                listaNominal: listaNominal,
-                votosNulos: votosNulos,
-                votosTotales: votosTotales,
-                ubicacion: ubicacion,
-            },
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        })
-        .then((response) => {
-            if (response.status === 200) {
-                setReloadData(true);
-                handleCloseModal();
+            .put(route(`Casillas.Casillas.update`, { id: id }), null, {
+                params: {
+                    id_seccion: id_seccion,
+                    tipoCasilla: tipoCasilla,
+                    
+                    votosNulos: votosNulos,
+                    votosTotales: votosTotales,
+                    ubicacion: ubicacion,
+                },
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+            .then((response) => {
+                if (response.status === 200) {
+                    setReloadData(true);
+                    handleCloseModal();
+                    Swal.fire({
+                        title: "Actualizado correctamente",
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1600,
+                    });
+                }
+            })
+            .catch((error) => {
                 Swal.fire({
-                    title: "Actualizado correctamente",
-                    icon: "success",
+                    icon: "error",
+                    title: "Oops...",
+                    text: error.message,
                     showConfirmButton: false,
                     timer: 1600,
                 });
-            }
-        })
-        .catch((error) => {
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: error.message,
-                showConfirmButton: false,
-                timer: 1600,
             });
-        });
     };
 
     useEffect(() => {
@@ -279,6 +271,47 @@ const Index = () => {
         // console.log(event);
     };
 
+    /**carga por csv */
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [file, setFile] = useState(null);
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
+    };
+    const handleUpload = () => {
+        const formData = new FormData();
+        formData.append("csv_file", file);
+
+        axios
+            .post(route("Casillas.Casillas.storeFromCSV"), formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                onUploadProgress: (progressEvent) => {
+                    const progress = Math.round(
+                        (progressEvent.loaded / progressEvent.total) * 100
+                    );
+                    setUploadProgress(progress);
+                },
+            })
+            .then((response) => {
+                setReloadData(true);
+                setUploadProgress(0);
+                Swal.fire({
+                    icon: "success",
+                    title: "¡Éxito!",
+                    text: "Carga de csv correcta",
+                });
+            })
+            .catch((error) => {
+                setUploadProgress(0);
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Hubo un error al subir el archivo.",
+                });
+                console.error(error);
+            });
+    };
 
     return (
         <>
@@ -297,8 +330,27 @@ const Index = () => {
                         </button>
                     }
                 >
+                    <div>
+                        <input
+                            type="file"
+                            name="csv_file"
+                            onChange={handleFileChange}
+                        />
+                        <button
+                            className="btn btn-secondary btn-xs "
+                            onClick={handleUpload}
+                        >
+                            <span className="fas fa-file-csv" /> Subir CSV
+                        </button>
+                        {uploadProgress > 0 && (
+                            <div>
+                                <p>Progreso de carga: {uploadProgress}%</p>
+                                <progress value={uploadProgress} max="100" />
+                            </div>
+                        )}
+                    </div>
+                    <hr className="m-3" />
                     <DataTablecustom columnas={columns} datos={dataCasilla} />
-
                 </ContainerLTE>
                 <ModalCustom
                     tamaño={"lg"}
@@ -331,7 +383,6 @@ const Index = () => {
                                     setValue={handleSelectChange}
                                     //isDisabled={depFiltro}
                                 />
-                                
                             </div>
                             <div className="form-group">
                                 <label htmlFor="tipoCasillaInput">
@@ -348,25 +399,11 @@ const Index = () => {
                                     }
                                 />
                             </div>
+                           
                             <div className="form-group">
-                                <label htmlFor="listaNominalInput">
-                                    Lista Nominal<code>*</code>
-                                </label>
-                                <input
-                                    type="text"
-                                    className="form-control form-control-border"
-                                    id="listaNominalInput"
-                                    placeholder="lista nominal"
-                                    value={listaNominal}
-                                    onChange={(event) =>
-                                        setListaNominal(event.target.value)
-                                    }
-                                />
-                            </div>
-                            <div className="form-group">
-                               {/** <label htmlFor="VotosNulosInput">
+                                {/** <label htmlFor="VotosNulosInput">
                                     Votos Nulos<code>*</code>
-                                </label>*/} 
+                                </label>*/}
                                 <input
                                     type="hidden"
                                     className="form-control form-control-border"

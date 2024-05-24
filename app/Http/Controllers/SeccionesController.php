@@ -38,12 +38,14 @@ class SeccionesController extends Controller
         $request->validate([
             'descripcion' => 'required|string',
             'id_distrito' => 'required|integer',
+            'listaNominal' => 'required|integer',
         ]);
 
         // Crear una nueva instancia de Seccion con los datos del formulario
         $seccion = new SeccionesModel();
         $seccion->descripcion = $request->descripcion;
         $seccion->id_distrito = $request->id_distrito;
+        $seccion->listaNominal = $request->listaNominal;
 
         // Guardar la sección en la base de datos
         $seccion->save();
@@ -74,6 +76,7 @@ class SeccionesController extends Controller
             $seccion = new SeccionesModel();
             $seccion->descripcion = $row['descripcion'];
             $seccion->id_distrito = $row['distrito'];
+            $seccion->listaNominal = $row['listaNominal'];
 
             // Guardar la sección en la base de datos
             $seccion->save();
@@ -89,7 +92,7 @@ class SeccionesController extends Controller
         // Obtener todas las secciones
         $seccionesConDistrito = DB::table('secciones')
             ->join('distrito', 'secciones.id_distrito', '=', 'distrito.id')
-            ->select('secciones.id', 'secciones.descripcion', 'secciones.created_at', 'secciones.updated_at', 'distrito.descripcion as distrito')
+            ->select('secciones.id', 'secciones.descripcion', 'secciones.listaNominal', 'secciones.created_at', 'secciones.updated_at', 'distrito.descripcion as distrito')
             ->get();
 
         // Devolver las secciones como respuesta JSON
@@ -124,11 +127,13 @@ class SeccionesController extends Controller
         $request->validate([
             'descripcion' => 'required|string',
             'id_distrito' => 'required|integer',
+            'listaNominal' => 'required|int',
         ]);
 
         // Actualizar los datos de la sección
         $seccion->descripcion = $request->descripcion;
         $seccion->id_distrito = $request->id_distrito;
+        $seccion->listaNominal = $request->listaNominal;
 
         // Guardar los cambios en la base de datos
         $seccion->save();

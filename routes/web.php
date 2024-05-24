@@ -104,6 +104,7 @@ Route::prefix('Casillas')->group(function () {
         Route::get('/listar-casillas', 'listarCasillas')->name('Casillas.Casillas.listarCasillas');
         Route::put('/update-casilla/{id}', 'update')->name('Casillas.Casillas.update');
         Route::delete('/delete-casilla/{id}', 'destroy')->name('Casillas.Casillas.destroy');
+        Route::post('/upload-csv', 'storeFromCSV')->name('Casillas.Casillas.storeFromCSV');
     });
 });
 

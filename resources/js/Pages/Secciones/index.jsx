@@ -12,6 +12,7 @@ const Index = () => {
     const [reloadData, setReloadData] = useState(false);
     const [descripcion, setDescripcion] = useState("");
     const [idDistrito, setIdDistrito] = useState("");
+    const [listaNominal, setListaNominal] = useState("");
     const [unidadMedidaSeleccionada, setUnidadMedidaSeleccionada] =
         useState(null);
     const [modalOpen, setModalOpen] = useState(false);
@@ -33,6 +34,7 @@ const Index = () => {
         const formData = new FormData();
         formData.append("descripcion", descripcion);
         formData.append("id_distrito", idDistrito);
+        formData.append("listaNominal", listaNominal);
         axios
             .post(route("Secciones.Secciones.store"), formData, {
                 headers: {
@@ -44,6 +46,7 @@ const Index = () => {
                     setReloadData(true);
                     setDescripcion("");
                     setIdDistrito("");
+                    setListaNominal("");
 
                     Swal.fire({
                         title: response.data.message,
@@ -73,12 +76,13 @@ const Index = () => {
                 `${route("Secciones.Secciones.listarSecciones")}`
             );
             if (response.status === 200) {
-                console.log("response", response);
+                console.log("secciones", response);
                 // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
                 const formattedData = response.data.map((unimedida) => ({
                     id: unimedida.id,
                     descripcion: unimedida.descripcion,
                     distrito: unimedida.distrito,
+                    listaNominal: unimedida.listaNominal,
                 }));
                 // Establecer los departamentos en el estado
                 setData(formattedData);
@@ -125,6 +129,10 @@ const Index = () => {
             selector: (row) => row.descripcion,
         },
         {
+            name: "Lista Nominal",
+            selector: (row) => row.listaNominal,
+        },
+        {
             name: "distrito",
             selector: (row) => row.distrito,
         },
@@ -160,6 +168,7 @@ const Index = () => {
                 params: {
                     descripcion: descripcion,
                     id_distrito: idDistrito,
+                    listaNominal: listaNominal,
                 },
                 headers: {
                     "Content-Type": "application/json",
@@ -203,10 +212,12 @@ const Index = () => {
         if (modo === "Editar" && unidadMedidaSeleccionada) {
             setDescripcion(unidadMedidaSeleccionada.descripcion);
             setIdDistrito(unidadMedidaSeleccionada.distrito);
+            setListaNominal(unidadMedidaSeleccionada.listaNominal);
         } else {
             // Si no estamos en modo de edición, resetear los valores de los inputs
             setDescripcion("");
             setIdDistrito("");
+            setListaNominal("");
         }
     }, [modo, unidadMedidaSeleccionada]);
 
@@ -269,12 +280,12 @@ const Index = () => {
                 },
             })
             .then((response) => {
-                setUploadProgress(0);
                 setReloadData(true);
+                setUploadProgress(0);
                 Swal.fire({
                     icon: "success",
                     title: "¡Éxito!",
-                    text: response.data.message,
+                    text: "Carga de csv correcta",
                 });
             })
             .catch((error) => {
@@ -367,6 +378,21 @@ const Index = () => {
                                     value={descripcion}
                                     onChange={(event) =>
                                         setDescripcion(event.target.value)
+                                    }
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="listaNominalInput">
+                                    Lista Nominal<code>*</code>
+                                </label>
+                                <input
+                                    type="text"
+                                    className="form-control form-control-border"
+                                    id="listaNominalInput"
+                                    placeholder="lista nominal"
+                                    value={listaNominal}
+                                    onChange={(event) =>
+                                        setListaNominal(event.target.value)
                                     }
                                 />
                             </div>

@@ -13,6 +13,7 @@ class SeccionesModel extends Model
     protected $fillable = [
         'descripcion',
         'id_distrito',
+        'listaNominal',
     ];
 
 }

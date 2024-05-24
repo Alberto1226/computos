@@ -83,7 +83,7 @@ export default class Menu extends Component {
                                         href={route("Elecciones.Elecciones.index")}
                                         className="nav-link"
                                     >
-                                        <i className="nav-icon fas fa-city" />
+                                        <i className="nav-icon fa fa-globe" />
                                         <p>Tipo Eleccion</p>
                                     </a>
                                 </li>
