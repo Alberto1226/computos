@@ -9,6 +9,7 @@ use League\Csv\Reader;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
+
 class CasillasController extends Controller
 {
     /**
@@ -149,4 +150,19 @@ class CasillasController extends Controller
         $casillas = CasillasModel::all();
         return response()->json($casillas);
     }
+
+    public function listarCasillaPorSeccion($id_seccion)
+    {
+        // Obtener todas las secciones
+        $seccionesConDistrito = DB::table('casilla')
+            ->join('secciones', 'casilla.id_seccion', '=', 'secciones.id')
+            ->where('casilla.id_seccion', $id_seccion)
+            ->select('casilla.id', 'casilla.id_seccion', 'casilla.tipoCasilla', 'casilla.listaNominal','secciones.descripcion')
+            ->get();
+
+        // Devolver las secciones como respuesta JSON
+        return response()->json($seccionesConDistrito);
+    }
+
+
 }

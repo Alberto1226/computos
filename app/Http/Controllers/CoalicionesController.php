@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use App\Models\CoalicionesModel;
+
+
 
 class CoalicionesController extends Controller
 {
@@ -98,4 +101,21 @@ class CoalicionesController extends Controller
         $coaliciones = CoalicionesModel::all();
         return response()->json($coaliciones);
     }
+
+    public function listarCoalicionesPartidos($id_eleccion)
+    {
+        $coaliciones = DB::table('coaliciones')
+            ->leftJoin('partidospoliticos', function ($join) {
+                $join->on(DB::raw('FIND_IN_SET(partidospoliticos.id, coaliciones.id_partidos)'), '>', DB::raw('0'));
+            })
+            ->where('id_eleccion', $id_eleccion)
+            ->select('coaliciones.*', 
+                    DB::raw('GROUP_CONCAT(partidospoliticos.abrebiatura) as abreviaturas'),
+                    DB::raw('GROUP_CONCAT(partidospoliticos.color) as colores'))
+            ->groupBy('coaliciones.id')
+            ->get();
+
+        return response()->json($coaliciones);
+    }
+
 }

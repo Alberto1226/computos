@@ -9,6 +9,7 @@ use App\Http\Controllers\DitritosController;
 use App\Http\Controllers\PartidosPoliticosController;
 use App\Http\Controllers\CoalicionesController;
 use App\Http\Controllers\CasillasController;
+use App\Http\Controllers\ResultadosController;
 use Inertia\Inertia;
 
 /*
@@ -72,6 +73,7 @@ Route::prefix('Secciones')->group(function () {
         Route::get('/listar-secciones', 'listarSecciones')->name('Secciones.Secciones.listarSecciones');
         Route::put('/update-seccione/{id}', 'update')->name('Secciones.Secciones.update');
         Route::delete('/delete-secciones/{id}', 'destroy')->name('Secciones.Secciones.destroy');
+        Route::get('/listar-seccionesDist/{id_distrito}', 'listarSeccionDistrito')->name('Secciones.Secciones.listarSeccionDistrito');
        // Route::get('/pdf', 'generatePdf')->name('Reportes.Reportes.generatePdf');
        Route::post('/upload-csv', 'storeFromCSV')->name('Secciones.Secciones.storeFromCSV');
     });
@@ -92,6 +94,7 @@ Route::prefix('Coaliciones')->group(function () {
         Route::get('/', 'index')->name('Coaliciones.Coaliciones.index');
         Route::post('/save-coalicion', 'store')->name('Coaliciones.Coaliciones.store');
         Route::get('/listar-coaliciones', 'listarCoaliciones')->name('Coaliciones.Coaliciones.listarCoaliciones');
+        Route::get('/listarCoaPart/{id_eleccion}', 'listarCoalicionesPartidos')->name('Coaliciones.Coaliciones.listarCoalicionesPartidos');
         Route::put('/update-coalicion/{id}', 'update')->name('Coaliciones.Coaliciones.update');
         Route::delete('/delete-coalicion/{id}', 'destroy')->name('Coaliciones.Coaliciones.destroy');
     });
@@ -105,6 +108,15 @@ Route::prefix('Casillas')->group(function () {
         Route::put('/update-casilla/{id}', 'update')->name('Casillas.Casillas.update');
         Route::delete('/delete-casilla/{id}', 'destroy')->name('Casillas.Casillas.destroy');
         Route::post('/upload-csv', 'storeFromCSV')->name('Casillas.Casillas.storeFromCSV');
+        Route::get('/listCasillasSeccion/{id_seccion}', 'listarCasillaPorSeccion')->name('Casillas.Casillas.listarCasillaPorSeccion');
+    });
+});
+
+Route::prefix('Resultados')->group(function () {
+    Route::controller(ResultadosController::class)->group(function () {
+        //rutas con base al prefijo
+        Route::get('/', 'index')->name('Resultados.Resultados.index');
+        Route::post('/save-resultados', 'store')->name('Resultados.Resultados.store');
     });
 });
 

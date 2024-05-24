@@ -157,4 +157,14 @@ class SeccionesController extends Controller
         // En este caso, simplemente devolvemos una respuesta JSON indicando que se ha eliminado correctamente
         return response()->json(['message' => 'Seccion eliminada correctamente'], Response::HTTP_OK);
     }
+
+    public function listarSeccionDistrito($id_distrito)
+    {
+        // Obtener todas las unidades de medida que pertenecen a la empresa con el ID proporcionado
+        $secciones = SeccionesModel::where('id_distrito', $id_distrito)->get();
+
+        // Devolver una respuesta JSON con las unidades de medida
+        return response()->json($secciones);
+    }
+
 }
