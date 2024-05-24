@@ -24,7 +24,7 @@ const Index = (props) => {
 
     const agregarNuevoeleccion = () => {
         const formData = new FormData();
-        formData.append("nombre", nombre);
+        formData.append("nombreEleccion", nombre);
         axios
             .post(route("Elecciones.Elecciones.store"), formData, {
                 headers: {

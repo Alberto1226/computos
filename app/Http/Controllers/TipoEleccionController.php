@@ -40,7 +40,7 @@ class TipoEleccionController extends Controller
             // Guardar el registro en la base de datos
             $eleccion->save();
             // Retornar una respuesta adecuada
-            return redirect()->route('Eleccion.Eleccion.index')->with('success', 'Registro exitoso');
+            return redirect()->route('Elecciones.Elecciones.index')->with('success', 'Registro exitoso');
     }
 
     
