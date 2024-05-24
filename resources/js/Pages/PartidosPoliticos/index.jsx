@@ -5,17 +5,19 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import DataTablecustom from "@/Components/Generales/DataTable";
+import { HexColorInput, HexColorPicker } from "react-colorful";
 
 const Index = () => {
     const [modo, setModo] = useState("");
     const [reloadData, setReloadData] = useState(false);
     const [NombrePartido, setNombrePartido] = useState("");
     const [AbreviaturaPartido, setAbreviaturaPartido] = useState("");
-    const [ColorPartido, setColorPartido] = useState("");
+    const [ColorPartido, setColorPartido] = useState("#aabbcc");
 
     const [modalOpen, setModalOpen] = useState(false);
 
-    const [PartidoPoliticoSeleccionado, setPartidoPoliticoSeleccionado] = useState(null);
+    const [PartidoPoliticoSeleccionado, setPartidoPoliticoSeleccionado] =
+        useState(null);
 
     const [modalEliminacion, setModalEliminacion] = useState(false);
     const [idDetelete, setIdDetelete] = useState(null);
@@ -24,18 +26,21 @@ const Index = () => {
         setModalOpen(false);
     };
 
-
     const AgregarPartidoPolitico = () => {
         const formData = new FormData();
         formData.append("nombre", NombrePartido);
         formData.append("abreviatura", AbreviaturaPartido);
         formData.append("color", ColorPartido);
         axios
-            .post(route("PartidosPoliticos.PartidosPoliticos.store"), formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            })
+            .post(
+                route("PartidosPoliticos.PartidosPoliticos.store"),
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            )
             .then((response) => {
                 if (response.status === 200) {
                     setReloadData(true);
@@ -80,7 +85,7 @@ const Index = () => {
                 `${route("PartidosPoliticos.PartidosPoliticos.listarPartidos")}`
             );
             if (response.status === 200) {
-                console.log('response', response);
+                console.log("response", response);
                 // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
                 const formattedData = response.data.map((PartidoPolitico) => ({
                     id: PartidoPolitico.id,
@@ -104,16 +109,27 @@ const Index = () => {
             name: "Nombre",
             selector: (row) => row.nombrePartido,
         },
-       
+
         {
             name: "Abreviatura",
             selector: (row) => row.abreviatura,
         },
         {
             name: "Color",
-            selector: (row) => row.color,
+            cell: (row) => (
+                <>
+                    <div
+                        style={{
+                            backgroundColor: row.color,
+                            width: "20px",
+                            height: "20px",
+                            
+                        }}
+                    ></div>
+                </>
+            ),
         },
-        
+
         {
             name: "Acciones",
             cell: (row) => (
@@ -148,11 +164,10 @@ const Index = () => {
             setNombrePartido(PartidoPoliticoSeleccionado.nombrePartido);
             setAbreviaturaPartido(PartidoPoliticoSeleccionado.abreviatura);
             setColorPartido(PartidoPoliticoSeleccionado.color);
-          
         } else {
             setNombrePartido("");
             setAbreviaturaPartido("");
-            setColorPartido("");            
+            setColorPartido("");
         }
     }, [modo, PartidoPoliticoSeleccionado]);
 
@@ -160,38 +175,41 @@ const Index = () => {
         const id = PartidoPoliticoSeleccionado?.id; // Obtener el ID del partido politico seleccionado
 
         axios
-        .put(route(`PartidosPoliticos.PartidosPoliticos.update`, { id: id }), null, {
-            params: {
-                nombre: NombrePartido,
-                abreviatura: AbreviaturaPartido,
-                color: ColorPartido,
-
-            },
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        })
-        .then((response) => {
-            if (response.status === 200) {
-                setReloadData(true);
-                handleCloseModal();
+            .put(
+                route(`PartidosPoliticos.PartidosPoliticos.update`, { id: id }),
+                null,
+                {
+                    params: {
+                        nombre: NombrePartido,
+                        abreviatura: AbreviaturaPartido,
+                        color: ColorPartido,
+                    },
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            )
+            .then((response) => {
+                if (response.status === 200) {
+                    setReloadData(true);
+                    handleCloseModal();
+                    Swal.fire({
+                        title: "Actualizado correctamente",
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1600,
+                    });
+                }
+            })
+            .catch((error) => {
                 Swal.fire({
-                    title: "Actualizado correctamente",
-                    icon: "success",
+                    icon: "error",
+                    title: "Oops...",
+                    text: error.message,
                     showConfirmButton: false,
                     timer: 1600,
                 });
-            }
-        })
-        .catch((error) => {
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: error.message,
-                showConfirmButton: false,
-                timer: 1600,
             });
-        });
     };
 
     useEffect(() => {
@@ -207,7 +225,9 @@ const Index = () => {
     const handleConfirmDelete = () => {
         const id = idDetelete;
         axios
-            .delete(route(`PartidosPoliticos.PartidosPoliticos.destroy`, { id }))
+            .delete(
+                route(`PartidosPoliticos.PartidosPoliticos.destroy`, { id })
+            )
             .then((response) => {
                 if (response.status === 200) {
                     setReloadData(true);
@@ -224,7 +244,6 @@ const Index = () => {
                 console.error("Error al eliminar Partido politico:", error);
             });
     };
-
 
     return (
         <>
@@ -243,8 +262,10 @@ const Index = () => {
                         </button>
                     }
                 >
-                    <DataTablecustom columnas={columns} datos={dataPartidosPoliticos} />
-
+                    <DataTablecustom
+                        columnas={columns}
+                        datos={dataPartidosPoliticos}
+                    />
                 </ContainerLTE>
                 <ModalCustom
                     tamaño={"lg"}
@@ -290,14 +311,24 @@ const Index = () => {
                                     placeholder="Abreviatura del Partido"
                                     value={AbreviaturaPartido}
                                     onChange={(event) =>
-                                        setAbreviaturaPartido(event.target.value)
+                                        setAbreviaturaPartido(
+                                            event.target.value
+                                        )
                                     }
                                 />
                             </div>
+
                             <div className="form-group">
                                 <label htmlFor="ColorPartidoInput">
                                     Color <code>*</code>
                                 </label>
+                                <div className="d-flex justify-content-center">
+                                    <HexColorPicker
+                                        color={ColorPartido}
+                                        onChange={setColorPartido}
+                                    />
+                                </div>
+
                                 <input
                                     type="text"
                                     className="form-control form-control-border"
@@ -333,7 +364,10 @@ const Index = () => {
                         </>
                     }
                 >
-                    <p>¿Estás seguro de que quieres eliminar el partido politico?</p>
+                    <p>
+                        ¿Estás seguro de que quieres eliminar el partido
+                        politico?
+                    </p>
                 </ModalCustom>
             </Authenticated>
         </>

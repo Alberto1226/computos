@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import DataTablecustom from "@/Components/Generales/DataTable";
+import CustomSelect from "@/Components/Generales/CustomSelect";
 
 const Index = () => {
     const [modo, setModo] = useState("");
@@ -48,7 +49,12 @@ const Index = () => {
             .then((response) => {
                 if (response.status === 200) {
                     setReloadData(true);
-
+                    setIdSeccion("");
+                    setTipoCasilla("");
+                    setListaNominal("");
+                    setVotosNulos("");
+                    setVotosTotales("");
+                    setUbicacion("");
                     Swal.fire({
                         title: response.data.message,
                         icon: "success",
@@ -104,8 +110,31 @@ const Index = () => {
             console.log(error);
         }
     };
+    const [dataSeccion, setDataSeccion] = useState([]);
+    // Listado de Departamentos
+    const getSecciones = async () => {
+        try {
+            const response = await axios.get(
+                `${route("Secciones.Secciones.listarSecciones")}`
+            );
+            if (response.status === 200) {
+                console.log("Secciones", response);
+                // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
+                const formattedData = response.data.map((unimedida) => ({
+                    id: unimedida.id,
+                    value: unimedida.descripcion,
+                   
+                }));
+                // Establecer los departamentos en el estado
+                setDataSeccion(formattedData);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
     useEffect(() => {
         getCasillas();
+        getSecciones();
     }, [reloadData]);
 
     const columns = [
@@ -121,15 +150,6 @@ const Index = () => {
         {
             name: "Lista Nominal",
             selector: (row) => row.listaNominal,
-        },
-        {
-            name: "Votos Nulos",
-            selector: (row) => row.votosNulos,
-        },
-       
-        {
-            name: "Votos Totales",
-            selector: (row) => row.votosTotales,
         },
         {
             name: "Ubicación",
@@ -170,11 +190,16 @@ const Index = () => {
             setIdSeccion(CasillaSeleccionada.id_seccion);
             setTipoCasilla(CasillaSeleccionada.tipoCasilla);
             setListaNominal(CasillaSeleccionada.listaNominal);
+            setUbicacion(CasillaSeleccionada.ubicacion);     
           
         } else {
+            
             setIdSeccion("");
             setTipoCasilla("");
-            setListaNominal("");            
+            setListaNominal("");
+            setVotosNulos("");
+            setVotosTotales("");
+            setUbicacion("");       
         }
     }, [modo, CasillaSeleccionada]);
 
@@ -249,6 +274,11 @@ const Index = () => {
             });
     };
 
+    const handleSelectChange = (event) => {
+        setIdSeccion(event);
+        // console.log(event);
+    };
+
 
     return (
         <>
@@ -290,18 +320,18 @@ const Index = () => {
                         <form>
                             <div className="form-group">
                                 <label htmlFor="id_seccionInput">
-                                    id_seccion <code>*</code>
+                                    Seccion <code>*</code>
                                 </label>
-                                <input
-                                    type="text"
-                                    className="form-control form-control-border"
-                                    id="id_seccionInput"
-                                    placeholder="seccion"
-                                    value={id_seccion}
-                                    onChange={(event) =>
-                                        setIdSeccion(event.target.value)
-                                    }
+                                <CustomSelect
+                                    dataOptions={dataSeccion.map((role) => ({
+                                        value: `${role.id} `,
+                                        label: `${role.value}`,
+                                    }))}
+                                    preDefaultValue={parseInt(id_seccion)}
+                                    setValue={handleSelectChange}
+                                    //isDisabled={depFiltro}
                                 />
+                                
                             </div>
                             <div className="form-group">
                                 <label htmlFor="tipoCasillaInput">
@@ -334,11 +364,11 @@ const Index = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="VotosNulosInput">
+                               {/** <label htmlFor="VotosNulosInput">
                                     Votos Nulos<code>*</code>
-                                </label>
+                                </label>*/} 
                                 <input
-                                    type="text"
+                                    type="hidden"
                                     className="form-control form-control-border"
                                     id="VotosNulosInput"
                                     placeholder="votos nulos"
@@ -349,11 +379,12 @@ const Index = () => {
                                 />
                             </div>
                             <div className="form-group">
+                                {/**
                                 <label htmlFor="VotosTotalesInput">
                                     Votos Totales<code>*</code>
-                                </label>
+                                </label> */}
                                 <input
-                                    type="text"
+                                    type="hidden"
                                     className="form-control form-control-border"
                                     id="VotosTotalesInput"
                                     placeholder="votos totales"
@@ -367,7 +398,7 @@ const Index = () => {
                                 <label htmlFor="UbicacionInput">
                                     Ubicacion<code>*</code>
                                 </label>
-                                <input
+                                <textarea
                                     type="text"
                                     className="form-control form-control-border"
                                     id="UbicacionInput"

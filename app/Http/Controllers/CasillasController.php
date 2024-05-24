@@ -34,8 +34,8 @@ class CasillasController extends Controller
             'id_seccion' => 'required|int',
             'tipoCasilla' => 'required|string',
             'listaNominal' => 'required|int',
-            'votosNulos' => 'required|int',
-            'votosTotales' => 'required|int',
+            'votosNulos' => 'nullable|int',
+            'votosTotales' => 'nullable|int',
             'ubicacion' => 'required|string',
         ]);
 
