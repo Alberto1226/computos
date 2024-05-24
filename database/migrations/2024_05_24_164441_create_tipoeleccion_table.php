@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('coaliciones', function (Blueprint $table) {
+        Schema::create('tipoeleccion', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->text('descripcion');
-            $table->string('id_partidos', 100)->nullable();
-            $table->string('id_eleccion', 100)->nullable();
+            $table->text('nombreEleccion');
             $table->timestamps();
         });
     }
@@ -25,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('coaliciones');
+        Schema::dropIfExists('tipoeleccion');
     }
 };

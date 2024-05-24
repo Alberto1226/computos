@@ -12,7 +12,8 @@ const Index = () => {
     const [reloadData, setReloadData] = useState(false);
     const [descripcion, setDescripcion] = useState("");
     const [idDistrito, setIdDistrito] = useState("");
-    const [unidadMedidaSeleccionada, setUnidadMedidaSeleccionada] = useState(null);
+    const [unidadMedidaSeleccionada, setUnidadMedidaSeleccionada] =
+        useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [idDetelete, setidDetelete] = useState(null);
     const [modalOpen2, setModalOpen2] = useState(false);
@@ -27,7 +28,6 @@ const Index = () => {
             updateNuevo();
         }
     };
-
 
     const agregarNuevaSeccion = () => {
         const formData = new FormData();
@@ -73,13 +73,12 @@ const Index = () => {
                 `${route("Secciones.Secciones.listarSecciones")}`
             );
             if (response.status === 200) {
-                console.log('response', response);
+                console.log("response", response);
                 // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
                 const formattedData = response.data.map((unimedida) => ({
                     id: unimedida.id,
                     descripcion: unimedida.descripcion,
                     distrito: unimedida.distrito,
-                   
                 }));
                 // Establecer los departamentos en el estado
                 setData(formattedData);
@@ -96,7 +95,7 @@ const Index = () => {
                 `${route("Distritos.Distritos.listarDistritos")}`
             );
             if (response.status === 200) {
-                console.log('distritos', response)
+                console.log("distritos", response);
                 // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
                 const formattedData = response.data.map((distrtio) => ({
                     id: distrtio.id,
@@ -112,7 +111,7 @@ const Index = () => {
     useEffect(() => {
         getSecciones();
         getDistritos();
-       // return () => setReloadData(false);
+        // return () => setReloadData(false);
     }, [reloadData]);
 
     const columns = [
@@ -120,7 +119,7 @@ const Index = () => {
             name: "ID",
             selector: (row) => row.id,
         },
-       
+
         {
             name: "Descripción",
             selector: (row) => row.descripcion,
@@ -129,7 +128,7 @@ const Index = () => {
             name: "distrito",
             selector: (row) => row.distrito,
         },
-        
+
         {
             name: "Actions",
             cell: (row) => (
@@ -161,7 +160,6 @@ const Index = () => {
                 params: {
                     descripcion: descripcion,
                     id_distrito: idDistrito,
-                   
                 },
                 headers: {
                     "Content-Type": "application/json",
@@ -199,59 +197,95 @@ const Index = () => {
         // Lógica para llenar el formulario con los datos de la unidad de medida a editar
     };
 
-
     //llenar form editar
     useEffect(() => {
         // Cuando se abre el modal de edición, establecer los valores de los inputs
         if (modo === "Editar" && unidadMedidaSeleccionada) {
             setDescripcion(unidadMedidaSeleccionada.descripcion);
             setIdDistrito(unidadMedidaSeleccionada.distrito);
-          
         } else {
             // Si no estamos en modo de edición, resetear los valores de los inputs
             setDescripcion("");
             setIdDistrito("");
-            
         }
     }, [modo, unidadMedidaSeleccionada]);
-
 
     //eliminar
     const handleConfirmDelete = () => {
         const id = idDetelete;
         axios
-        .delete(route(`Secciones.Secciones.destroy`, { id }))
-        .then((response) => {
-          if (response.status === 200) {
-            setReloadData(true);
-            Swal.fire({
-                title: response.data.message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1600,
+            .delete(route(`Secciones.Secciones.destroy`, { id }))
+            .then((response) => {
+                if (response.status === 200) {
+                    setReloadData(true);
+                    Swal.fire({
+                        title: response.data.message,
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1600,
+                    });
+                    setModalOpen2(false);
+                }
+            })
+            .catch((error) => {
+                console.error("Error al eliminar la unidad de medida:", error);
             });
-            setModalOpen2(false);
-          }
-        })
-        .catch((error) => {
-          console.error("Error al eliminar la unidad de medida:", error);
-        });
-         
     };
 
     const handleDelete = (idDetelete) => {
         // Aquí puedes realizar cualquier acción necesaria antes de abrir el modal de edición
         // Por ejemplo, puedes recuperar los datos de la unidad de medida con el ID proporcionado y llenar el formulario con ellos
-        console.log('clic'+idDetelete);
+        console.log("clic" + idDetelete);
         setidDetelete(idDetelete); // Pasar la unidad de medida seleccionada
         setModalOpen2(true);
         // Lógica para llenar el formulario con los datos de la unidad de medida a editar
     };
 
-
     const handleSelectChange = (event) => {
         setIdDistrito(event);
         // console.log(event);
+    };
+
+    /**carga por csv */
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [file, setFile] = useState(null);
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
+    };
+    const handleUpload = () => {
+        const formData = new FormData();
+        formData.append("csv_file", file);
+
+        axios
+            .post(route("Secciones.Secciones.storeFromCSV"), formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                onUploadProgress: (progressEvent) => {
+                    const progress = Math.round(
+                        (progressEvent.loaded / progressEvent.total) * 100
+                    );
+                    setUploadProgress(progress);
+                },
+            })
+            .then((response) => {
+                setUploadProgress(0);
+                setReloadData(true);
+                Swal.fire({
+                    icon: "success",
+                    title: "¡Éxito!",
+                    text: response.data.message,
+                });
+            })
+            .catch((error) => {
+                setUploadProgress(0);
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Hubo un error al subir el archivo.",
+                });
+                console.error(error);
+            });
     };
 
     return (
@@ -260,20 +294,48 @@ const Index = () => {
                 <ContainerLTE
                     title="Secciones"
                     buttonadd={
-                        <button
-                            className="btn btn-success btn-xs "
-                            onClick={() => {
-                                setModo("Agregar");
-                                setModalOpen(true);
-                                //setUnidadMedidaSeleccionada(null);
-                            }}
-                        >
-                            <span className="fas fa-plus"></span> Agregar
-                        </button>
+                        <>
+                           
+                            <button
+                                className="btn btn-success btn-xs "
+                                onClick={() => {
+                                    setModo("Agregar");
+                                    setModalOpen(true);
+                                    //setUnidadMedidaSeleccionada(null);
+                                }}
+                            >
+                                <span className="fas fa-plus"></span> Agregar
+                            </button>
+                        </>
                     }
                 >
-                    <DataTablecustom columnas={columns} datos={data}/>
-                    
+                     <div>
+                                <input
+                                    type="file"
+                                    name="csv_file"
+                                    onChange={handleFileChange}
+                                />
+                                <button
+                                    className="btn btn-secondary btn-xs "
+                                    onClick={handleUpload}
+                                >
+                                    <span className="fas fa-file-csv" /> Subir
+                                    CSV
+                                </button>
+                                {uploadProgress > 0 && (
+                                    <div>
+                                        <p>
+                                            Progreso de carga: {uploadProgress}%
+                                        </p>
+                                        <progress
+                                            value={uploadProgress}
+                                            max="100"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                            <hr className="m-3"/>
+                    <DataTablecustom columnas={columns} datos={data} />
                 </ContainerLTE>
                 <ModalCustom
                     tamaño={"lg"}
@@ -312,19 +374,16 @@ const Index = () => {
                                 <label htmlFor="idDistritoInput">
                                     ID de Distrito <code>*</code>
                                 </label>
-                                
-                                    <CustomSelect
-                                        dataOptions={data2.map((role) => ({
-                                            value: `${role.id} `,
-                                            label: `${role.value}`,
-                                        }))}
-                                        preDefaultValue={parseInt(
-                                            idDistrito
-                                        )}
-                                        setValue={handleSelectChange}
-                                        //isDisabled={depFiltro}
-                                    />
-                               
+
+                                <CustomSelect
+                                    dataOptions={data2.map((role) => ({
+                                        value: `${role.id} `,
+                                        label: `${role.value}`,
+                                    }))}
+                                    preDefaultValue={parseInt(idDistrito)}
+                                    setValue={handleSelectChange}
+                                    //isDisabled={depFiltro}
+                                />
                             </div>
                         </form>
                     </div>
@@ -350,9 +409,7 @@ const Index = () => {
                         </>
                     }
                 >
-                    <p>
-                        ¿Estás seguro de que quieres eliminar esta seccion?
-                    </p>
+                    <p>¿Estás seguro de que quieres eliminar esta seccion?</p>
                 </ModalCustom>
             </Authenticated>
         </>

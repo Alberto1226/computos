@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TipoEleccionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SeccionesController;
@@ -51,6 +52,17 @@ Route::prefix('Distritos')->group(function () {
     });
 });
 
+Route::prefix('Elecciones')->group(function () {
+    Route::controller(TipoEleccionController::class)->group(function () {
+        //rutas con base al prefijo
+        Route::get('/', 'index')->name('Elecciones.Elecciones.index');
+        Route::post('/save-Elecciones', 'store')->name('Elecciones.Elecciones.store');
+        Route::get('/list-Elecciones/', 'listarElecciones')->name('Elecciones.Elecciones.listarElecciones');
+        Route::put('/update-Elecciones/{id}', 'update')->name('Elecciones.Elecciones.update');
+        Route::delete('/delete-Elecciones/{id}', 'destroy')->name('Elecciones.Elecciones.destroy');
+    });
+});
+
 
 Route::prefix('Secciones')->group(function () {
     Route::controller(SeccionesController::class)->group(function () {
@@ -61,6 +73,7 @@ Route::prefix('Secciones')->group(function () {
         Route::put('/update-seccione/{id}', 'update')->name('Secciones.Secciones.update');
         Route::delete('/delete-secciones/{id}', 'destroy')->name('Secciones.Secciones.destroy');
        // Route::get('/pdf', 'generatePdf')->name('Reportes.Reportes.generatePdf');
+       Route::post('/upload-csv', 'storeFromCSV')->name('Secciones.Secciones.storeFromCSV');
     });
 });
 
