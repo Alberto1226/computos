@@ -90,10 +90,11 @@ const Index = () => {
                 `${route("Casillas.Casillas.listarCasillas")}`
             );
             if (response.status === 200) {
-                console.log("response", response);
+                console.log("casillas", response);
                 // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
                 const formattedData = response.data.map((Casilla) => ({
                     id: Casilla.id,
+                    seccion: Casilla.descripcion,
                     id_seccion: Casilla.id_seccion,
                     tipoCasilla: Casilla.tipoCasilla,
                     
@@ -136,8 +137,8 @@ const Index = () => {
 
     const columns = [
         {
-            name: "id_seccion",
-            selector: (row) => row.id_seccion,
+            name: "Seccion",
+            selector: (row) => row.seccion,
         },
 
         {
