@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import DataTablecustom from "@/Components/Generales/DataTable";
+import CustomDropdownSelect from "@/Components/Generales/CustomDropdownSelect";
 
 const Index = () => {
     const [modo, setModo] = useState("");
@@ -12,6 +13,8 @@ const Index = () => {
     const [Descripcion, setDescripcion] = useState("");
     const [id_partidos, setIdPartidos] = useState("");
     const [id_eleccion, setIdEleccion] = useState("");
+
+    const [resetDropdown, setResetDropdown] = useState(false);
 
     const [modalOpen, setModalOpen] = useState(false);
 
@@ -42,6 +45,7 @@ const Index = () => {
                     setDescripcion("");
                     setIdPartidos("");
                     setIdEleccion("");
+                    setResetDropdown(true);
 
                     Swal.fire({
                         title: response.data.message,
@@ -97,6 +101,7 @@ const Index = () => {
     };
     useEffect(() => {
         getCoalicion();
+        getPartidosPoliticos();
     }, [reloadData]);
 
     const columns = [
@@ -104,16 +109,17 @@ const Index = () => {
             name: "Descripcion",
             selector: (row) => row.descripcion,
         },
-       
+
         {
             name: "Partidos",
-            selector: (row) => row.id_partidos,
+            // selector: (row) => row.id_partidos,
+            selector: (row) => obtenerAbreviaturas(row.id_partidos, dataPartidosPoliticos),
         },
         {
             name: "Seleccion",
             selector: (row) => row.id_eleccion,
         },
-        
+
         {
             name: "Acciones",
             cell: (row) => (
@@ -136,6 +142,20 @@ const Index = () => {
         },
     ];
 
+    const obtenerAbreviaturas = (idPartidos, partidosPoliticos) => {
+        // Convertir el string de IDs en un array de IDs
+        const ids = idPartidos.split(",").map(id => parseInt(id.trim(), 10));
+        
+        // Filtrar la lista de partidos políticos para obtener solo aquellos cuyos IDs coincidan con los IDs en row.id_partidos
+        const partidosFiltrados = partidosPoliticos.filter(partido => ids.includes(partido.id));
+        
+        // Mapear los partidos políticos filtrados para obtener solo las abreviaturas
+        const abreviaturas = partidosFiltrados.map(partido => partido.abreviatura);
+        
+        // Devolver las abreviaturas como una cadena separada por comas
+        return abreviaturas.join(", ");
+    };
+
     const handleEdit = (CoalicionSeleccionada) => {
         setModo("Editar");
         setCoalicionSeleccionada(CoalicionSeleccionada);
@@ -148,11 +168,12 @@ const Index = () => {
             setDescripcion(CoalicionSeleccionada.descripcion);
             setIdPartidos(CoalicionSeleccionada.id_partidos);
             setIdEleccion(CoalicionSeleccionada.id_eleccion);
-          
+            // console.log(CoalicionSeleccionada.id_partidos);
+
         } else {
             setDescripcion("");
             setIdPartidos("");
-            setIdEleccion("");            
+            setIdEleccion("");
         }
     }, [modo, CoalicionSeleccionada]);
 
@@ -160,41 +181,42 @@ const Index = () => {
         const id = CoalicionSeleccionada?.id; // Obtener el ID del partido politico seleccionado
 
         axios
-        .put(route(`Coaliciones.Coaliciones.update`, { id: id }), null, {
-            params: {
-                descripcion: Descripcion,
-                id_partidos: id_partidos,
-                id_eleccion: id_eleccion,
-            },
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        })
-        .then((response) => {
-            if (response.status === 200) {
-                setReloadData(true);
-                handleCloseModal();
+            .put(route(`Coaliciones.Coaliciones.update`, { id: id }), null, {
+                params: {
+                    descripcion: Descripcion,
+                    id_partidos: id_partidos,
+                    id_eleccion: id_eleccion,
+                },
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+            .then((response) => {
+                if (response.status === 200) {
+                    setReloadData(true);
+                    handleCloseModal();
+                    Swal.fire({
+                        title: "Actualizado correctamente",
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1600,
+                    });
+                }
+            })
+            .catch((error) => {
                 Swal.fire({
-                    title: "Actualizado correctamente",
-                    icon: "success",
+                    icon: "error",
+                    title: "Oops...",
+                    text: error.message,
                     showConfirmButton: false,
                     timer: 1600,
                 });
-            }
-        })
-        .catch((error) => {
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: error.message,
-                showConfirmButton: false,
-                timer: 1600,
             });
-        });
     };
 
     useEffect(() => {
         getCoalicion();
+        setResetDropdown(false);// Reiniciar el estado de resetDropdown para que siga borrando los datos despues de guardar el registro
         return () => setReloadData(false);
     }, [reloadData]);
 
@@ -222,6 +244,33 @@ const Index = () => {
             .catch((error) => {
                 console.error("Error al eliminar Coalicion:", error);
             });
+    };
+
+    //listar Partidos Politicos
+    const [dataPartidosPoliticos, setDataPartidosPoliticos] = useState([]);
+
+    // Listado de partidos politicos
+    const getPartidosPoliticos = async () => {
+        try {
+            const response = await axios.get(
+                `${route("PartidosPoliticos.PartidosPoliticos.listarPartidos")}`
+            );
+            if (response.status === 200) {
+                console.log('response', response);
+                // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
+                const formattedData = response.data.map((PartidoPolitico) => ({
+                    id: PartidoPolitico.id,
+                    nombrePartido: PartidoPolitico.nombrePartido,
+                    abreviatura: PartidoPolitico.abrebiatura,
+                    color: PartidoPolitico.color,
+                    label: PartidoPolitico.abrebiatura,
+                }));
+                // Establecer los departamentos en el estado
+                setDataPartidosPoliticos(formattedData);
+            }
+        } catch (error) {
+            console.log(error);
+        }
     };
 
 
@@ -279,18 +328,16 @@ const Index = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="id_partidosInput">
-                                    Partidos <code>*</code>
+                                <label htmlFor="ColoursInput">
+                                    Partidos Politicos <code>*</code>
                                 </label>
-                                <input
-                                    type="text"
-                                    className="form-control form-control-border"
-                                    id="id_partidosInput"
-                                    placeholder="partidos"
-                                    value={id_partidos}
-                                    onChange={(event) =>
-                                        setIdPartidos(event.target.value)
+                                <CustomDropdownSelect
+                                    options={dataPartidosPoliticos}
+                                    onChange={(selectedColors) =>
+                                        setIdPartidos(selectedColors)
                                     }
+                                    reset={resetDropdown} // Pasar resetDropdown al CustomDropdownSelect
+                                    selectedIds = {id_partidos}
                                 />
                             </div>
                             <div className="form-group">
