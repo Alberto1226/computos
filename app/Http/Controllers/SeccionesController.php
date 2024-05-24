@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\SeccionesModel;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use League\Csv\Reader;
+use Illuminate\Support\Facades\Auth;
 
 
 class SeccionesController extends Controller
@@ -49,6 +51,38 @@ class SeccionesController extends Controller
         // Devolver una respuesta
         return response()->json(['message' => 'Sección creada correctamente'], 200);
     }
+
+    public function storeFromCSV(Request $request)
+    {
+        // Validar los datos del formulario
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:2048', 
+        ]);
+
+      
+
+        // Obtener el archivo CSV del formulario
+        $csvFile = $request->file('csv_file');
+
+        // Abrir el archivo CSV y leer su contenido
+        $csvReader = Reader::createFromPath($csvFile->getPathname(), 'r');
+        $csvReader->setHeaderOffset(0); 
+        $csvReader->setDelimiter(','); 
+
+        // Iterar sobre cada fila del archivo CSV y crear una sección para cada una
+        foreach ($csvReader as $row) {
+            $seccion = new SeccionesModel();
+            $seccion->descripcion = $row['descripcion'];
+            $seccion->id_distrito = $row['distrito'];
+
+            // Guardar la sección en la base de datos
+            $seccion->save();
+        }
+
+        // Devolver una respuesta
+        return response()->json(['message' => 'Secciones cargadas correctamente desde el archivo CSV!'], 200);
+    }
+
 
     public function listarSecciones()
     {

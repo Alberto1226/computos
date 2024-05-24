@@ -50,7 +50,7 @@ const DataTablecustom = ({ datos = [], columnas = [] }) => {
                             type="search"
                             value={filterValue}
                             onChange={handleFilterChange}
-                            className="form-control form-control-xs "
+                            className="form-control form-control-xs form-control-border"
                             placeholder="Buscar..."
                         />
                         <div className="input-group-append">
