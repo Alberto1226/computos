@@ -109,7 +109,7 @@ class CoalicionesController extends Controller
                 $join->on(DB::raw('FIND_IN_SET(partidospoliticos.id, coaliciones.id_partidos)'), '>', DB::raw('0'));
             })
             ->where('id_eleccion', $id_eleccion)
-            ->select('coaliciones.*', 
+            ->select('coaliciones.id', 'coaliciones.descripcion', 'coaliciones.id_partidos',  'coaliciones.id_eleccion', 
                     DB::raw('GROUP_CONCAT(partidospoliticos.abrebiatura) as abreviaturas'),
                     DB::raw('GROUP_CONCAT(partidospoliticos.color) as colores'))
             ->groupBy('coaliciones.id')
