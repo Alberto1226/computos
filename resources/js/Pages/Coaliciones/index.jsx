@@ -6,6 +6,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import DataTablecustom from "@/Components/Generales/DataTable";
 import CustomDropdownSelect from "@/Components/Generales/CustomDropdownSelect";
+import CustomSelect from "@/Components/Generales/CustomSelect";
 
 const Index = () => {
     const [modo, setModo] = useState("");
@@ -27,12 +28,11 @@ const Index = () => {
         setModalOpen(false);
     };
 
-
     const AgregarCoalicion = () => {
         const formData = new FormData();
         formData.append("descripcion", Descripcion);
         formData.append("id_partidos", id_partidos);
-        formData.append("id_eleccion", id_eleccion);
+        formData.append("id_eleccion", selectedValue);
         axios
             .post(route("Coaliciones.Coaliciones.store"), formData, {
                 headers: {
@@ -84,7 +84,7 @@ const Index = () => {
                 `${route("Coaliciones.Coaliciones.listarCoaliciones")}`
             );
             if (response.status === 200) {
-                console.log('response', response);
+                console.log("response", response);
                 // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
                 const formattedData = response.data.map((Coalicion) => ({
                     id: Coalicion.id,
@@ -99,8 +99,31 @@ const Index = () => {
             console.log(error);
         }
     };
+
+    const [dataElecciones, setDataElecciones] = useState([]);
+    console.log("dataElecciones", dataElecciones);
+    // Listado de Departamentos
+    const getElecciones = async () => {
+        try {
+            const response = await axios.get(
+                `${route("Elecciones.Elecciones.listarElecciones")}`
+            );
+            if (response.status === 200) {
+                // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
+                const formattedData = response.data.map((distrtio) => ({
+                    id: distrtio.id,
+                    value: distrtio.nombreEleccion,
+                }));
+                // Establecer los departamentos en el estado
+                setDataElecciones(formattedData);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
     useEffect(() => {
         getCoalicion();
+        getElecciones();
         getPartidosPoliticos();
     }, [reloadData]);
 
@@ -113,7 +136,8 @@ const Index = () => {
         {
             name: "Partidos",
             // selector: (row) => row.id_partidos,
-            selector: (row) => obtenerAbreviaturas(row.id_partidos, dataPartidosPoliticos),
+            selector: (row) =>
+                obtenerAbreviaturas(row.id_partidos, dataPartidosPoliticos),
         },
         {
             name: "Seleccion",
@@ -144,14 +168,18 @@ const Index = () => {
 
     const obtenerAbreviaturas = (idPartidos, partidosPoliticos) => {
         // Convertir el string de IDs en un array de IDs
-        const ids = idPartidos.split(",").map(id => parseInt(id.trim(), 10));
-        
+        const ids = idPartidos.split(",").map((id) => parseInt(id.trim(), 10));
+
         // Filtrar la lista de partidos políticos para obtener solo aquellos cuyos IDs coincidan con los IDs en row.id_partidos
-        const partidosFiltrados = partidosPoliticos.filter(partido => ids.includes(partido.id));
-        
+        const partidosFiltrados = partidosPoliticos.filter((partido) =>
+            ids.includes(partido.id)
+        );
+
         // Mapear los partidos políticos filtrados para obtener solo las abreviaturas
-        const abreviaturas = partidosFiltrados.map(partido => partido.abreviatura);
-        
+        const abreviaturas = partidosFiltrados.map(
+            (partido) => partido.abreviatura
+        );
+
         // Devolver las abreviaturas como una cadena separada por comas
         return abreviaturas.join(", ");
     };
@@ -169,7 +197,6 @@ const Index = () => {
             setIdPartidos(CoalicionSeleccionada.id_partidos);
             setIdEleccion(CoalicionSeleccionada.id_eleccion);
             // console.log(CoalicionSeleccionada.id_partidos);
-
         } else {
             setDescripcion("");
             setIdPartidos("");
@@ -185,7 +212,7 @@ const Index = () => {
                 params: {
                     descripcion: Descripcion,
                     id_partidos: id_partidos,
-                    id_eleccion: id_eleccion,
+                    id_eleccion: selectedValue,
                 },
                 headers: {
                     "Content-Type": "multipart/form-data",
@@ -216,7 +243,7 @@ const Index = () => {
 
     useEffect(() => {
         getCoalicion();
-        setResetDropdown(false);// Reiniciar el estado de resetDropdown para que siga borrando los datos despues de guardar el registro
+        setResetDropdown(false); // Reiniciar el estado de resetDropdown para que siga borrando los datos despues de guardar el registro
         return () => setReloadData(false);
     }, [reloadData]);
 
@@ -256,7 +283,7 @@ const Index = () => {
                 `${route("PartidosPoliticos.PartidosPoliticos.listarPartidos")}`
             );
             if (response.status === 200) {
-                console.log('response', response);
+                console.log("response", response);
                 // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
                 const formattedData = response.data.map((PartidoPolitico) => ({
                     id: PartidoPolitico.id,
@@ -273,6 +300,11 @@ const Index = () => {
         }
     };
 
+    const [selectedValue, setSelectedValue] = useState(null);
+
+    const handleSelectChange = (newValue) => {
+        setSelectedValue(newValue);
+    };
 
     return (
         <>
@@ -292,7 +324,6 @@ const Index = () => {
                     }
                 >
                     <DataTablecustom columnas={columns} datos={dataCoalicion} />
-
                 </ContainerLTE>
                 <ModalCustom
                     tamaño={"lg"}
@@ -337,22 +368,25 @@ const Index = () => {
                                         setIdPartidos(selectedColors)
                                     }
                                     reset={resetDropdown} // Pasar resetDropdown al CustomDropdownSelect
-                                    selectedIds = {id_partidos}
+                                    selectedIds={id_partidos}
                                 />
                             </div>
                             <div className="form-group">
                                 <label htmlFor="id_eleccionInput">
                                     Eleccion <code>*</code>
                                 </label>
-                                <input
-                                    type="text"
-                                    className="form-control form-control-border"
-                                    id="id_eleccionInput"
-                                    placeholder="eleccion"
-                                    value={id_eleccion}
-                                    onChange={(event) =>
-                                        setIdEleccion(event.target.value)
-                                    }
+                                <CustomSelect
+                                    dataOptions={(Array.isArray(dataElecciones)
+                                        ? dataElecciones
+                                        : []
+                                    ).map((role) => ({
+                                        value: `${role.id} `,
+                                        label: `${role.value}`,
+                                    }))}
+                                    preDefaultValue={parseInt(id_eleccion)}
+                                    setValue={handleSelectChange}
+                                    // Asegúrate de que isDisabled no esté establecido en true después de la primera selección
+                                    //isDisabled={depFiltro}
                                 />
                             </div>
                         </form>
