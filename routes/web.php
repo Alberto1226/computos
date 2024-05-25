@@ -117,6 +117,8 @@ Route::prefix('Resultados')->group(function () {
         //rutas con base al prefijo
         Route::get('/', 'index')->name('Resultados.Resultados.index');
         Route::post('/save-resultados', 'store')->name('Resultados.Resultados.store');
+        Route::get('/listarPorTipoEleccion/{id_eleccion}', 'listarPorTipoEleccion')->name('Resultados.Resultados.listarPorTipoEleccion');
+
     });
 });
 

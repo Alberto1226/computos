@@ -6,7 +6,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import CustomSelect from "@/Components/Generales/CustomSelect";
-import { Button, Col, Row } from "react-bootstrap";
+import { Button, Col, Row, Tab, Tabs } from "react-bootstrap";
+import DynamicChart from "@/Components/Generales/Grafica";
 
 const Index = (props) => {
     const [reloadData, setReloadData] = useState(false);
@@ -14,7 +15,8 @@ const Index = (props) => {
     const [distrito, setDistrito] = useState(null);
     const [seccion, setSeccion] = useState(null);
     const [casilla, setCasilla] = useState(null);
-    const [descripcion, setDescripcion] = useState("");
+    const [eleccion, setEleccion] = useState(null);
+    const [tipoEleccion, setTipoEleccion] = useState(null);
     const [modo, setModo] = useState("");
 
     /**Insert */
@@ -118,6 +120,100 @@ const Index = (props) => {
     };
     /**Fin insert */
 
+    const [dataResultadosEleccion, setDataResultadosEleccion] = useState([]);
+    // Listado de Departamentos
+    const getResultadosElecciones = async (tipo) => {
+        try {
+            const response = await axios.get(
+                `${route("Resultados.Resultados.listarPorTipoEleccion", {
+                    id_eleccion: tipo,
+                })}`
+            );
+            if (response.status === 200) {
+                // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
+                const formattedData = response.data.map((distrtio) => ({
+                    id: distrtio.id,
+                    id_casilla: distrtio.id_casilla,
+                    id_partido: distrtio.id_partido,
+                    id_coalicion: distrtio.id_coalicion,
+                    id_eleccion: distrtio.id_eleccion,
+                    total: distrtio.total,
+                    nombrePartidoOCoal: distrtio.nombrePartido
+                        ? distrtio.nombrePartido
+                        : distrtio.nombreCoalicion,
+                    abreviaturaPartido: distrtio.abreviaturaPartido,
+                    colorPartido: distrtio.colorPartido,
+                    seccionCons: distrtio.seccionCons,
+                    descripcionSeccion: distrtio.descripcionSeccion,
+                    tipoDeCasilla: distrtio.tipoDeCasilla,
+                }));
+                // Establecer los departamentos en el estado
+                setDataResultadosEleccion(formattedData);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        if (tipoEleccion) {
+            getResultadosElecciones(tipoEleccion);
+        }
+    }, [tipoEleccion]);
+
+    const [partidosOCoalicion, setPartidosOCoalicion] = useState([]);
+    const [totalpartidosOCoalicion, setTotalPartidosOCoalicion] = useState([]);
+    const [coloresGrafica, setColoresGrafica] = useState([]);
+
+    useEffect(() => {
+        console.log("dataResultadosEleccion", dataResultadosEleccion);
+        let agrupado = dataResultadosEleccion.reduce((acumulador, item) => {
+            let nombre = item.nombrePartidoOCoal;
+            if (!acumulador[nombre]) {
+                acumulador[nombre] = { ...item, total: 0 }; // copia todas las propiedades del item actual
+            }
+            acumulador[nombre].total += item.total;
+            return acumulador;
+        }, {});
+
+        // Convertir el objeto a un arreglo
+        let resultadoFinal = Object.values(agrupado);
+
+        console.log("----------------->", resultadoFinal);
+
+        let ppOCoal = resultadoFinal.map((item) => item.nombrePartidoOCoal);
+        setPartidosOCoalicion(ppOCoal);
+        let totalppOCoal = resultadoFinal.map((item) => item.total);
+        setTotalPartidosOCoalicion(totalppOCoal);
+        let colores = resultadoFinal.map((item) => item.colorPartido);
+        setColoresGrafica(colores);
+    }, [dataResultadosEleccion]);
+
+    const [dataElecciones, setDataElecciones] = useState([]);
+    // Listado de Departamentos
+    const getElecciones = async () => {
+        try {
+            const response = await axios.get(
+                `${route("Elecciones.Elecciones.listarElecciones")}`
+            );
+            if (response.status === 200) {
+                // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
+                const formattedData = response.data.map((distrtio) => ({
+                    id: distrtio.id,
+                    eleccion: distrtio.nombreEleccion,
+                }));
+                // Establecer los departamentos en el estado
+                setDataElecciones(formattedData);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        getElecciones();
+    }, []);
+
     const [dataDist, setDataDist] = useState([]);
     // Listado de Departamentos
     const getDistritos = async () => {
@@ -183,7 +279,6 @@ const Index = (props) => {
                     id_seccion: id,
                 })}`
             );
-            console.log(response);
             if (response.status === 200) {
                 // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
                 const formattedData = response.data.map((casilla) => ({
@@ -246,9 +341,7 @@ const Index = (props) => {
                     id_eleccion: id,
                 })}`
             );
-            console.log("response", response);
             if (response.status === 200) {
-                console.log("response", response);
                 // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
                 const formattedData = response.data.map((coalicion) => ({
                     id: coalicion.id,
@@ -266,11 +359,10 @@ const Index = (props) => {
     };
 
     useEffect(() => {
-        const tipoEleccion = 1;
         if (casilla) {
-            getCoaliciones(tipoEleccion);
+            getCoaliciones(eleccion);
         }
-    }, [casilla]);
+    }, [casilla, eleccion]);
 
     const [inputs, setInputs] = useState(dataPartidosPoliticos.map(() => ""));
 
@@ -309,10 +401,22 @@ const Index = (props) => {
             selector: (row) => row.id,
         },
         {
-            name: "Nombre",
-            selector: (row) => row.distrito,
+            name: "PARTIDO POLITICO O COALICION",
+            selector: (row) => row.nombrePartidoOCoal,
         },
         {
+            name: "SECCIÓN",
+            selector: (row) => row.descripcionSeccion,
+        },
+        {
+            name: "TIPO DE CASILLA",
+            selector: (row) => row.tipoDeCasilla,
+        },
+        {
+            name: "TOTAL DE VOTOS",
+            selector: (row) => row.total,
+        },
+        /*{
             name: "Actions",
             cell: (row) => (
                 <>
@@ -331,7 +435,7 @@ const Index = (props) => {
                     </button>
                 </>
             ),
-        },
+        },*/
     ];
 
     const [idDisSelect, setidDisSelect] = useState(null);
@@ -345,6 +449,16 @@ const Index = (props) => {
     const handleDelete = (idDetelete) => {
         setidDisSelect(idDetelete);
         setModalOpen2(true);
+    };
+
+    const handleSelectChangeTipoEleccion = (selectedValue2) => {
+        const selectedAccount = selectedValue2;
+        setTipoEleccion(selectedAccount);
+    };
+
+    const handleSelectChangeEleccion = (selectedValue2) => {
+        const selectedAccount = selectedValue2;
+        setEleccion(selectedAccount);
     };
 
     const handleSelectChangeDistrito = (selectedValue2) => {
@@ -372,14 +486,14 @@ const Index = (props) => {
                 id_partido: dataPartidosPoliticos[index].id,
                 total: parseInt(input),
                 id_casilla: casilla,
-                id_eleccion: 1,
+                id_eleccion: eleccion,
                 id_coalicion: 0,
             })),
             ...inputsCoa.map((inputCoa, index) => ({
                 id_partido: 0,
                 total: parseInt(inputCoa),
                 id_casilla: casilla,
-                id_eleccion: 1,
+                id_eleccion: eleccion,
                 id_coalicion: dataCoaliciones[index].id,
             })),
         ]);
@@ -392,7 +506,6 @@ const Index = (props) => {
     const registrarTotales = () => {
         const formData = new FormData();
         const totales = dataArray;
-        console.log("Tot------->", totales);
         totales.forEach((total, index) => {
             Object.keys(total).forEach((key) => {
                 formData.append(`totales[${index}][${key}]`, total[key]);
@@ -445,7 +558,69 @@ const Index = (props) => {
                         </button>
                     }
                 >
-                    <DataTablecustom columnas={columns} datos={[]} />
+                    <div>
+                        <label htmlFor="nombreInput">
+                            Selecciona el tipo de elección: <code>*</code>
+                        </label>
+                        <CustomSelect
+                            dataOptions={dataElecciones.map((role) => ({
+                                value: role.id,
+                                label: role.eleccion,
+                            }))}
+                            preDefaultValue={tipoEleccion}
+                            setValue={handleSelectChangeTipoEleccion}
+                            useFilter={true}
+                        />
+                    </div>
+                    <Tabs
+                        defaultActiveKey="home"
+                        id="uncontrolled-tab-example"
+                        className="mb-3"
+                        justify
+                        style={{
+                            fontSize: "larger",
+                            fontWeight: "bold",
+                            marginTop: "1%",
+                        }}
+                    >
+                        <Tab
+                            eventKey="home"
+                            title={
+                                <span style={{ textTransform: "capitalize" }}>
+                                    <span className="fas fa-table" /> Tabla
+                                </span>
+                            }
+                        >
+                            <DataTablecustom
+                                columnas={columns}
+                                datos={dataResultadosEleccion}
+                            />
+                        </Tab>
+                        <Tab
+                            eventKey="profile"
+                            title={
+                                <span style={{ textTransform: "capitalize" }}>
+                                    <span className="fas fa-chart-line" />{" "}
+                                    Gráfico
+                                </span>
+                            }
+                        >
+                            <div style={{ maxHeight: "50vh" }}>
+                                {dataResultadosEleccion.length > 0 ? (
+                                    <DynamicChart
+                                        frecuencias={totalpartidosOCoalicion}
+                                        etiquetas={partidosOCoalicion}
+                                        chartType={"bar"}
+                                        titInfo={"Total de votos"}
+                                        bgColor={coloresGrafica}
+                                        chartTitle={"TOTALES DE VOTOS PARA PARTIDOS POLITICOS Y COALICIONES"}
+                                    />
+                                ) : (
+                                    <p>Cargando...</p>
+                                )}
+                            </div>
+                        </Tab>
+                    </Tabs>
                 </ContainerLTE>
 
                 <ModalCustom
@@ -475,12 +650,12 @@ const Index = (props) => {
                                     Tipo de elección: <code>*</code>
                                 </label>
                                 <CustomSelect
-                                    dataOptions={dataDist.map((role) => ({
+                                    dataOptions={dataElecciones.map((role) => ({
                                         value: role.id,
-                                        label: role.distrito,
+                                        label: role.eleccion,
                                     }))}
-                                    preDefaultValue={distrito}
-                                    setValue={handleSelectChangeDistrito}
+                                    preDefaultValue={eleccion}
+                                    setValue={handleSelectChangeEleccion}
                                     useFilter={true}
                                 />
                             </div>
@@ -560,7 +735,7 @@ const Index = (props) => {
                                                 </div>
                                                 <input
                                                     type="number"
-                                                    placeholder="Cantidad de votos"
+                                                    placeholder="Votos"
                                                     className="form-control form-control-border"
                                                     value={inputs[index]}
                                                     onChange={(e) =>
@@ -595,7 +770,12 @@ const Index = (props) => {
                                                     flexDirection: "column",
                                                 }}
                                             >
-                                                <label>
+                                                <label
+                                                    style={{
+                                                        textTransform:
+                                                            "capitalize",
+                                                    }}
+                                                >
                                                     {coalicion.descripcion}
                                                 </label>
                                                 <label>
@@ -622,7 +802,7 @@ const Index = (props) => {
                                             </div>
                                             <input
                                                 type="number"
-                                                placeholder="Cantidad de votos"
+                                                placeholder="Votos"
                                                 className="form-control form-control-border mt-2"
                                                 value={inputsCoa[index]}
                                                 onChange={(e) =>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
 use App\Models\ResultadosModel;
 
 class ResultadosController extends Controller
@@ -73,4 +74,34 @@ class ResultadosController extends Controller
     {
         //
     }
+
+    public function listarPorTipoEleccion($id_eleccion)
+    {
+        $resultados = DB::table('resultados')
+            ->leftJoin('partidospoliticos', function ($join) {
+                $join->on('resultados.id_partido', '=', 'partidospoliticos.id')
+                    ->where('resultados.id_partido', '!=', 0);
+            })
+            ->leftJoin('coaliciones', function ($join) {
+                $join->on('resultados.id_coalicion', '=', 'coaliciones.id')
+                    ->where('resultados.id_coalicion', '!=', 0);
+            })
+            ->join('casilla', 'resultados.id_casilla', '=', 'casilla.id')
+            ->join('secciones', 'casilla.id_seccion', '=', 'secciones.id') // Nueva línea
+            ->where('resultados.id_eleccion', $id_eleccion)
+            ->select('resultados.*',
+                DB::raw('CASE WHEN resultados.id_partido != 0 THEN partidospoliticos.nombrePartido ELSE NULL END as nombrePartido'),
+                DB::raw('CASE WHEN resultados.id_partido != 0 THEN partidospoliticos.abrebiatura ELSE NULL END as abreviaturaPartido'),
+                DB::raw('CASE WHEN resultados.id_partido != 0 THEN partidospoliticos.color ELSE NULL END as colorPartido'),
+                DB::raw('CASE WHEN resultados.id_coalicion != 0 THEN coaliciones.descripcion ELSE NULL END as nombreCoalicion'),
+                'secciones.descripcion as descripcionSeccion', // Nueva línea
+                'casilla.tipoCasilla as tipoDeCasilla')
+            ->orderBy('secciones.descripcion')
+            ->get();
+
+        // Devolver una respuesta JSON con las unidades de medida
+        return response()->json($resultados);
+    }
+
+    
 }
