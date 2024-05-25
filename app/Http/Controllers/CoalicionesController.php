@@ -103,19 +103,20 @@ class CoalicionesController extends Controller
     }
 
     public function listarCoalicionesPartidos($id_eleccion)
-    {
-        $coaliciones = DB::table('coaliciones')
-            ->leftJoin('partidospoliticos', function ($join) {
-                $join->on(DB::raw('FIND_IN_SET(partidospoliticos.id, coaliciones.id_partidos)'), '>', DB::raw('0'));
-            })
-            ->where('id_eleccion', $id_eleccion)
-            ->select('coaliciones.id', 'coaliciones.descripcion', 'coaliciones.id_partidos',  'coaliciones.id_eleccion', 
-                    DB::raw('GROUP_CONCAT(partidospoliticos.abrebiatura) as abreviaturas'),
-                    DB::raw('GROUP_CONCAT(partidospoliticos.color) as colores'))
-            ->groupBy('coaliciones.id')
-            ->get();
+{
+    $coaliciones = DB::table('coaliciones')
+        ->leftJoin('partidospoliticos', function ($join) {
+            $join->on(DB::raw('FIND_IN_SET(partidospoliticos.id, coaliciones.id_partidos)'), '>', DB::raw('0'));
+        })
+        ->where('id_eleccion', $id_eleccion)
+        ->select('coaliciones.id', 'coaliciones.descripcion', 'coaliciones.id_partidos', 'coaliciones.id_eleccion',
+                DB::raw('GROUP_CONCAT(partidospoliticos.abrebiatura) as abreviaturas'),
+                DB::raw('GROUP_CONCAT(partidospoliticos.color) as colores'))
+        ->groupBy('coaliciones.id', 'coaliciones.descripcion', 'coaliciones.id_partidos', 'coaliciones.id_eleccion')
+        ->get();
 
-        return response()->json($coaliciones);
-    }
+    return response()->json($coaliciones);
+}
+
 
 }
