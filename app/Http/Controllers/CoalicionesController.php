@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use App\Models\CoalicionesModel;
-
+use Illuminate\Support\Facades\Auth;
 
 
 class CoalicionesController extends Controller
@@ -37,13 +37,17 @@ class CoalicionesController extends Controller
             'descripcion' => 'required|string',
             'id_partidos' => 'required|string',
             'id_eleccion' => 'required|string',
+            
         ]);
+
+        $id = Auth::user()->id;
 
         // Crear una nueva instancia de Coalicion con los datos del formulario
         $coalicion = new CoalicionesModel();
         $coalicion->descripcion = $request->descripcion;
         $coalicion->id_partidos = $request->id_partidos;
         $coalicion->id_eleccion = $request->id_eleccion;
+        $coalicion->id_user = $id;
 
         // Guardar la coalición en la base de datos
         $coalicion->save();

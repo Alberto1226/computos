@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_coalicion')->nullable();
             $table->unsignedBigInteger('id_eleccion')->nullable();
             $table->bigInteger('total')->nullable();
+            $table->unsignedBigInteger('id_user');
             $table->timestamps();
         });
     }

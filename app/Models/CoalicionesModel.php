@@ -14,5 +14,6 @@ class CoalicionesModel extends Model
         'descripcion',
         'id_partidos',
         'id_eleccion',
+        'id_user',
     ];
 }

@@ -39,13 +39,17 @@ class SeccionesController extends Controller
             'descripcion' => 'required|string',
             'id_distrito' => 'required|integer',
             'listaNominal' => 'required|integer',
+            
         ]);
+
+        $id = Auth::user()->id;
 
         // Crear una nueva instancia de Seccion con los datos del formulario
         $seccion = new SeccionesModel();
         $seccion->descripcion = $request->descripcion;
         $seccion->id_distrito = $request->id_distrito;
         $seccion->listaNominal = $request->listaNominal;
+        $seccion->id_user = $id;
 
         // Guardar la sección en la base de datos
         $seccion->save();
@@ -62,7 +66,7 @@ class SeccionesController extends Controller
         ]);
 
       
-
+        $id = Auth::user()->id;
         // Obtener el archivo CSV del formulario
         $csvFile = $request->file('csv_file');
 
@@ -77,7 +81,7 @@ class SeccionesController extends Controller
             $seccion->descripcion = $row['descripcion'];
             $seccion->id_distrito = $row['distrito'];
             $seccion->listaNominal = $row['listaNominal'];
-
+            $seccion->id_user = $id;
             // Guardar la sección en la base de datos
             $seccion->save();
         }
@@ -128,12 +132,15 @@ class SeccionesController extends Controller
             'descripcion' => 'required|string',
             'id_distrito' => 'required|integer',
             'listaNominal' => 'required|int',
+            
         ]);
 
+        $id = Auth::user()->id;
         // Actualizar los datos de la sección
         $seccion->descripcion = $request->descripcion;
         $seccion->id_distrito = $request->id_distrito;
         $seccion->listaNominal = $request->listaNominal;
+        $seccion->id_user = $id;
 
         // Guardar los cambios en la base de datos
         $seccion->save();

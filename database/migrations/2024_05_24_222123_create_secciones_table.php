@@ -16,6 +16,7 @@ return new class extends Migration
             $table->text('descripcion');
             $table->unsignedBigInteger('id_distrito');
             $table->unsignedBigInteger('listaNominal')->nullable();
+            $table->unsignedBigInteger('id_user');
             $table->timestamps();
         });
     }

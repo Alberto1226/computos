@@ -13,6 +13,7 @@ class PartidosPoliticosModel extends Model
     protected $fillable = [
         'nombrePartido',
         'abrebiatura',
-        'color'
+        'color',
+        'id_user',
     ];
 }

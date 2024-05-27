@@ -11,5 +11,6 @@ class TipoEleccionModel extends Model
     protected $table = 'tipoeleccion';
     protected $fillable = [
         'nombreEleccion',
+        'id_user',
     ];
 }

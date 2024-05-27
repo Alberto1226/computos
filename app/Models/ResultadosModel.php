@@ -16,5 +16,6 @@ class ResultadosModel extends Model
         'id_coalicion',
         'id_eleccion',
         'total',
+        'id_user',
     ];
 }

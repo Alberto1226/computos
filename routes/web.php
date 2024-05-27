@@ -58,9 +58,10 @@ Route::prefix('Elecciones')->group(function () {
         //rutas con base al prefijo
         Route::get('/', 'index')->name('Elecciones.Elecciones.index');
         Route::post('/save-Elecciones', 'store')->name('Elecciones.Elecciones.store');
-        Route::get('/list-Elecciones/', 'listarElecciones')->name('Elecciones.Elecciones.listarElecciones');
+        Route::get('/list-Elecciones', 'listarElecciones')->name('Elecciones.Elecciones.listarElecciones');
         Route::put('/update-Elecciones/{id}', 'update')->name('Elecciones.Elecciones.update');
         Route::delete('/delete-Elecciones/{id}', 'destroy')->name('Elecciones.Elecciones.destroy');
+        Route::delete('/delete-db', 'resetDatabase')->name('Elecciones.Elecciones.resetDatabase');
     });
 });
 

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tipoeleccion', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->text('nombreEleccion');
+            $table->unsignedBigInteger('id_user');
             $table->timestamps();
         });
     }

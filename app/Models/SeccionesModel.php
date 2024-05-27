@@ -14,6 +14,7 @@ class SeccionesModel extends Model
         'descripcion',
         'id_distrito',
         'listaNominal',
+        'id_user',
     ];
 
 }

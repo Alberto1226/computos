@@ -6,7 +6,8 @@ use App\Models\TipoEleccionModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Inertia\Inertia;
-
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Artisan;
 class TipoEleccionController extends Controller
 {
     /**
@@ -30,13 +31,18 @@ class TipoEleccionController extends Controller
      */
     public function store(Request $request)
     {
+        $id = Auth::user()->id;
+        
             // Validar los datos de la solicitud
             $request->validate([
                 'nombreEleccion' => 'required|string',
+                
             ]);
+           
             // Crear una nueva instancia de DivisionesDepartamentos y asignar los valores de la solicitud
             $eleccion = new TipoEleccionModel();
             $eleccion->nombreEleccion = $request->nombreEleccion;
+            $eleccion->id_user = $id;
             // Guardar el registro en la base de datos
             $eleccion->save();
             // Retornar una respuesta adecuada
@@ -94,5 +100,15 @@ class TipoEleccionController extends Controller
         $dis->delete();
 
         return response()->json(['message' => 'Eliminación correctamente'], Response::HTTP_OK);
+    }
+
+
+    public function resetDatabase()
+    {
+        Artisan::call('migrate:fresh');
+
+        return response()->json([
+            'message' => 'La base de datos ha sido reiniciada'
+        ]);
     }
 }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->text('descripcion');
             $table->string('id_partidos', 100)->nullable();
             $table->unsignedBigInteger('id_eleccion');
+            $table->unsignedBigInteger('id_user');
             $table->timestamps();
         });
     }

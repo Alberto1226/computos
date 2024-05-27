@@ -8,6 +8,7 @@ use App\Models\CasillasModel;
 use League\Csv\Reader;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 
 class CasillasController extends Controller
@@ -40,8 +41,10 @@ class CasillasController extends Controller
             'votosNulos' => 'nullable|int',
             'votosTotales' => 'nullable|int',
             'ubicacion' => 'required|string',
+            
         ]);
 
+        $id = Auth::user()->id;
         // Crear una nueva instancia de Casilla con los datos del formulario
         $casilla = new CasillasModel();
         $casilla->id_seccion = $request->id_seccion;
@@ -49,6 +52,7 @@ class CasillasController extends Controller
         $casilla->votosNulos = $request->votosNulos;
         $casilla->votosTotales = $request->votosTotales;
         $casilla->ubicacion = $request->ubicacion;
+        $casilla->id_user = $id;
 
         // Guardar la casilla en la base de datos
         $casilla->save();
@@ -64,6 +68,7 @@ class CasillasController extends Controller
             'csv_file' => 'required|file|mimes:csv,txt|max:2048',
         ]);
 
+        $id = Auth::user()->id;
         // Obtener el archivo CSV del formulario
         $csvFile = $request->file('csv_file');
 
@@ -80,7 +85,7 @@ class CasillasController extends Controller
             $casilla->votosNulos = isset($row['votosNulos']) ? (int) $row['votosNulos'] : null;
             $casilla->votosTotales = isset($row['votosTotales']) ? (int) $row['votosTotales'] : null;
             $casilla->ubicacion = $row['ubicacion'];
-
+            $casilla->id_user = $id;
             // Guardar la casilla en la base de datos
             $casilla->save();
         }

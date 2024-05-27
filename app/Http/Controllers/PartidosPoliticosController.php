@@ -6,7 +6,7 @@ use App\Models\PartidosPoliticosModel;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Http\Response;
-
+use Illuminate\Support\Facades\Auth;
 class PartidosPoliticosController extends Controller
 {
     /**
@@ -35,13 +35,16 @@ class PartidosPoliticosController extends Controller
             'nombre' => 'required|string',
             'abreviatura' => 'required|string',
             'color' => 'required|string',
+            
         ]);
 
+        $id = Auth::user()->id;
         // Crear una nueva instancia de PartidoPolitico con los datos del formulario
         $partido = new PartidosPoliticosModel();
         $partido->nombrePartido = $request->nombre;
         $partido->abrebiatura = $request->abreviatura;
         $partido->color = $request->color;
+        $partido->id_user = $id;
 
         // Guardar el partido en la base de datos
         $partido->save();

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->bigInteger('votosNulos')->nullable();
             $table->bigInteger('votosTotales')->nullable();
             $table->text('ubicacion')->nullable();
+            $table->unsignedBigInteger('id_user');
             $table->timestamps();
         });
     }
