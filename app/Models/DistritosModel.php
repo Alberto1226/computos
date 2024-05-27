@@ -12,6 +12,9 @@ class DistritosModel extends Model
     protected $table = 'distrito';
     protected $fillable = [
         'descripcion',
+        'votosTotales',
+        'avanceVotos',
+        'id_user',
     ];
 
 }

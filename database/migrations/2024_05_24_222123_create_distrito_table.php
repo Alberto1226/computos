@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('distrito', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->text('descripcion');
+            $table->bigInteger('votosTotales');
+            $table->bigInteger('avanceVotos');
+            $table->unsignedBigInteger('id_user');
             $table->timestamps();
         });
     }

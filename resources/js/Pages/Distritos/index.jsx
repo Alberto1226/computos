@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 const Index = (props) => {
     const [reloadData, setReloadData] = useState(false);
     const [nombre, setNombre] = useState("");
+    const [listaNominal, setListaNominal] = useState(0);
     const [descripcion, setDescripcion] = useState("");
     const [modo, setModo] = useState("");
 
@@ -25,6 +26,8 @@ const Index = (props) => {
     const agregarNuevoDistrito = () => {
         const formData = new FormData();
         formData.append("nombre", nombre);
+        formData.append("listaNominal", listaNominal);
+        formData.append("avance", 0);
         axios
             .post(route("Distritos.Distritos.store"), formData, {
                 headers: {
@@ -62,6 +65,7 @@ const Index = (props) => {
             .put(route(`Distritos.Distritos.update`, { id: id }), null, {
                 params: {
                     descripcion: nombre,
+                    listaNominal: listaNominal,
                 },
                 headers: {
                     "Content-Type": "multipart/form-data",
@@ -248,6 +252,21 @@ const Index = (props) => {
                                     value={nombre}
                                     onChange={(event) =>
                                         setNombre(event.target.value)
+                                    }
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="listaInput">
+                                    Lista nominal: <code>*</code>
+                                </label>
+                                <input
+                                    type="number"
+                                    className="form-control form-control-border"
+                                    id="listaInput"
+                                    placeholder="Total de la lista nominal"
+                                    value={listaNominal}
+                                    onChange={(event) =>
+                                        setListaNominal(event.target.value)
                                     }
                                 />
                             </div>

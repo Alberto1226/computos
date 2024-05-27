@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Models\ResultadosModel;
+use App\Models\DistritosModel;
+use Illuminate\Support\Facades\Auth;
 
 class ResultadosController extends Controller
 {
@@ -30,15 +32,20 @@ class ResultadosController extends Controller
      */
     public function store(Request $request)
     {
+        $id = Auth::user()->id;
         $totales = $request->input('totales');
         foreach ($totales as $total) {
+            $des = DistritosModel::findOrFail($total['id_distrito']);
             $regTotales = new ResultadosModel();
             $regTotales->id_casilla = $total['id_casilla'];
             $regTotales->id_partido = $total['id_partido'];
             $regTotales->id_coalicion = $total['id_coalicion'];
             $regTotales->id_eleccion = $total['id_eleccion'];
             $regTotales->total = $total['total'];
+            $regTotales->id_user = $id;
             $regTotales->save();
+            $des->avanceVotos += $total['total'];
+            $des->save();
         }
     }
     

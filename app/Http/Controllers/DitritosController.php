@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\DistritosModel;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class DitritosController extends Controller
 {
@@ -30,13 +31,19 @@ class DitritosController extends Controller
      */
     public function store(Request $request)
     {
+        $id = Auth::user()->id;
             // Validar los datos de la solicitud
             $request->validate([
                 'nombre' => 'required|string',
+                'listaNominal' => 'required|numeric',
+                'avance' => 'required|numeric',
             ]);
             // Crear una nueva instancia de DivisionesDepartamentos y asignar los valores de la solicitud
             $distrito = new DistritosModel();
             $distrito->descripcion = $request->nombre;
+            $distrito->votosTotales = $request->listaNominal;
+            $distrito->avanceVotos = $request->avance;
+            $distrito->id_user = $id;
             // Guardar el registro en la base de datos
             $distrito->save();
             // Retornar una respuesta adecuada

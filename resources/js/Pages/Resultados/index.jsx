@@ -488,6 +488,7 @@ const Index = (props) => {
                 id_casilla: casilla,
                 id_eleccion: eleccion,
                 id_coalicion: 0,
+                id_distrito: distrito
             })),
             ...inputsCoa.map((inputCoa, index) => ({
                 id_partido: 0,
@@ -495,6 +496,7 @@ const Index = (props) => {
                 id_casilla: casilla,
                 id_eleccion: eleccion,
                 id_coalicion: dataCoaliciones[index].id,
+                id_distrito: distrito
             })),
         ]);
     };
