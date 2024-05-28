@@ -110,6 +110,7 @@ Route::prefix('Casillas')->group(function () {
         Route::delete('/delete-casilla/{id}', 'destroy')->name('Casillas.Casillas.destroy');
         Route::post('/upload-csv', 'storeFromCSV')->name('Casillas.Casillas.storeFromCSV');
         Route::get('/listCasillasSeccion/{id_seccion}', 'listarCasillaPorSeccion')->name('Casillas.Casillas.listarCasillaPorSeccion');
+        Route::get('/listarCasillaPorSeccionGral/{id_seccion}', 'listarCasillaPorSeccionGral')->name('Casillas.Casillas.listarCasillaPorSeccionGral');
         Route::get('/listTcasillas', 'countCasillas')->name('Casillas.Casillas.countCasillas');
     });
 });
@@ -120,6 +121,7 @@ Route::prefix('Resultados')->group(function () {
         Route::get('/', 'index')->name('Resultados.Resultados.index');
         Route::post('/save-resultados', 'store')->name('Resultados.Resultados.store');
         Route::get('/listarPorTipoEleccion/{id_eleccion}', 'listarPorTipoEleccion')->name('Resultados.Resultados.listarPorTipoEleccion');
+        Route::get('/TotaldeVotos/{id_eleccion}', 'TotaldeVotos')->name('Resultados.Resultados.TotaldeVotos');
 
     });
 });

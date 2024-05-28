@@ -175,6 +175,19 @@ class CasillasController extends Controller
         return response()->json($seccionesConDistrito);
     }
 
+    public function listarCasillaPorSeccionGral($id_seccion)
+    {
+        // Obtener todas las secciones
+        $seccionesConDistrito = DB::table('casilla')
+            ->join('secciones', 'casilla.id_seccion', '=', 'secciones.id')
+            ->where('casilla.id_seccion', $id_seccion)
+            ->select('casilla.id', 'casilla.id_seccion', 'casilla.tipoCasilla', 'casilla.listaNominal', 'secciones.descripcion', 'casilla.status')
+            ->get();
+
+        // Devolver las secciones como respuesta JSON
+        return response()->json($seccionesConDistrito);
+    }
+
     public function countCasillas()
     {
         $totalCasillas = DB::table('casilla')->count();

@@ -6,7 +6,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import CustomSelect from "@/Components/Generales/CustomSelect";
-import { Button, Col, Row, Tab, Tabs } from "react-bootstrap";
+import { Button, Col, Row, Tab, Table, Tabs } from "react-bootstrap";
 import DynamicChart from "@/Components/Generales/Grafica";
 
 const Index = (props) => {
@@ -165,9 +165,16 @@ const Index = (props) => {
     const [totalpartidosOCoalicion, setTotalPartidosOCoalicion] = useState([]);
     const [coloresGrafica, setColoresGrafica] = useState([]);
 
+    const [dataFilter, setDataFilter] = useState([]);
+    const [totalesVR, setTotalesVR] = useState(0);
     useEffect(() => {
-        console.log("dataResultadosEleccion", dataResultadosEleccion);
-        let agrupado = dataResultadosEleccion.reduce((acumulador, item) => {
+        console.log("dataResultadosEleccion", dataFilter);
+        let totalVotos = 0;
+        dataFilter.forEach((registro) => {
+            totalVotos += registro.total;
+        });
+        setTotalesVR(totalVotos);
+        let agrupado = dataFilter.reduce((acumulador, item) => {
             let nombre = item.nombrePartidoOCoal;
             if (!acumulador[nombre]) {
                 acumulador[nombre] = { ...item, total: 0 }; // copia todas las propiedades del item actual
@@ -187,7 +194,7 @@ const Index = (props) => {
         setTotalPartidosOCoalicion(totalppOCoal);
         let colores = resultadoFinal.map((item) => item.colorPartido);
         setColoresGrafica(colores);
-    }, [dataResultadosEleccion]);
+    }, [dataFilter]);
 
     const [dataElecciones, setDataElecciones] = useState([]);
     // Listado de Departamentos
@@ -236,10 +243,8 @@ const Index = (props) => {
     };
 
     useEffect(() => {
-        if (modo == "Agregar") {
-            getDistritos();
-        }
-    }, [modo]);
+        getDistritos();
+    }, []);
 
     const [dataSeccion, setDataSeccion] = useState([]);
     // Listado de Departamentos
@@ -476,6 +481,81 @@ const Index = (props) => {
         setCasilla(selectedAccount);
     };
 
+    /***************************************************************************** */
+
+    const [disSelectFil, setDisSelectFil] = useState(null);
+
+    const handleSelectChangeDistritoFil = (selectedValue2) => {
+        const selectedAccount = selectedValue2;
+        setDisSelectFil(selectedAccount);
+    };
+
+    useEffect(() => {
+        if (disSelectFil) {
+            getSeccion(disSelectFil);
+        }
+    }, [disSelectFil]);
+
+    const [seccionSelectFil, setSeccionSelectFil] = useState(null);
+
+    const handleSelectChangeSeccionFil = (selectedValue2) => {
+        const selectedAccount = selectedValue2;
+        setSeccionSelectFil(selectedAccount);
+    };
+
+    const [dataCasillasFil, setDataCasillasFil] = useState([]);
+    // Listado de Departamentos
+    const getCasillasFil = async (id) => {
+        try {
+            const response = await axios.get(
+                `${route("Casillas.Casillas.listarCasillaPorSeccionGral", {
+                    id_seccion: id,
+                })}`
+            );
+            if (response.status === 200) {
+                // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
+                const formattedData = response.data.map((casilla) => ({
+                    id: casilla.id,
+                    tipoCasilla: casilla.tipoCasilla,
+                    descripcion: casilla.descripcion,
+                    listaNominal: casilla.listaNominal,
+                    status: casilla.status,
+                }));
+                // Establecer los departamentos en el estado
+                setDataCasillasFil(formattedData);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        if (seccionSelectFil) {
+            getCasillasFil(seccionSelectFil);
+        }
+    }, [seccionSelectFil]);
+
+    const [casillaSelectFil, setCasillaSelectFil] = useState(null);
+
+    const handleSelectChangeCasillaFil = (selectedValue2) => {
+        const selectedAccount = selectedValue2;
+        setCasillaSelectFil(selectedAccount);
+    };
+
+    useEffect(() => {
+        console.log("first", dataResultadosEleccion);
+        if (casillaSelectFil) {
+            const filter = dataResultadosEleccion.filter(
+                (data) => data.id_casilla === casillaSelectFil
+            );
+            setDataFilter(filter);
+        } else {
+            setDataFilter(dataResultadosEleccion);
+        }
+    }, [dataResultadosEleccion, casillaSelectFil]);
+
+    /***************************************************************************** */
+
     const [dataArray, setDataArray] = useState([]);
 
     const handleAddToDataArray = () => {
@@ -488,7 +568,7 @@ const Index = (props) => {
                 id_casilla: casilla,
                 id_eleccion: eleccion,
                 id_coalicion: 0,
-                id_distrito: distrito
+                id_distrito: distrito,
             })),
             ...inputsCoa.map((inputCoa, index) => ({
                 id_partido: 0,
@@ -496,7 +576,7 @@ const Index = (props) => {
                 id_casilla: casilla,
                 id_eleccion: eleccion,
                 id_coalicion: dataCoaliciones[index].id,
-                id_distrito: distrito
+                id_distrito: distrito,
             })),
         ]);
     };
@@ -543,6 +623,17 @@ const Index = (props) => {
             });
     };
 
+    const cellStyles = {
+        backgroundColor: "#343a40",
+        color: "#fff",
+        fontWeight: "bold",
+    };
+
+    const cellStyles2 = {
+        backgroundColor: "#f3f3f3",
+        fontWeight: "bold",
+    };
+
     return (
         <>
             <Authenticated auth={props.auth} errors={props.errors}>
@@ -560,7 +651,7 @@ const Index = (props) => {
                         </button>
                     }
                 >
-                    <div>
+                    <div className="form-group">
                         <label htmlFor="nombreInput">
                             Selecciona el tipo de elección: <code>*</code>
                         </label>
@@ -574,6 +665,51 @@ const Index = (props) => {
                             useFilter={true}
                         />
                     </div>
+                    <Row>
+                        <Col>
+                            <label htmlFor="nombreInput">
+                                Selecciona un distrito: <code>*</code>
+                            </label>
+                            <CustomSelect
+                                dataOptions={dataDist.map((role) => ({
+                                    value: role.id,
+                                    label: role.distrito,
+                                }))}
+                                preDefaultValue={disSelectFil}
+                                setValue={handleSelectChangeDistritoFil}
+                            />
+                        </Col>
+                        <Col>
+                            <label htmlFor="nombreInput">
+                                Selecciona una sección: <code>*</code>
+                            </label>
+                            <CustomSelect
+                                dataOptions={dataSeccion.map((role) => ({
+                                    value: role.id,
+                                    label: role.descripcion,
+                                }))}
+                                preDefaultValue={seccionSelectFil}
+                                setValue={handleSelectChangeSeccionFil}
+                            />
+                        </Col>
+                        <Col>
+                            <label htmlFor="nombreInput">
+                                Selecciona una casilla: <code>*</code>
+                            </label>
+                            <CustomSelect
+                                dataOptions={dataCasillasFil.map((casilla) => ({
+                                    value: casilla.id,
+                                    label:
+                                        casilla.descripcion +
+                                        "-" +
+                                        casilla.tipoCasilla +
+                                        (casilla.status == 1 ? " ✅" : " ❌"),
+                                }))}
+                                preDefaultValue={casillaSelectFil}
+                                setValue={handleSelectChangeCasillaFil}
+                            />
+                        </Col>
+                    </Row>
                     <Tabs
                         defaultActiveKey="home"
                         id="uncontrolled-tab-example"
@@ -593,10 +729,29 @@ const Index = (props) => {
                                 </span>
                             }
                         >
-                            <DataTablecustom
-                                columnas={columns}
-                                datos={dataResultadosEleccion}
-                            />
+                            <>
+                                <DataTablecustom
+                                    columnas={columns}
+                                    datos={dataFilter}
+                                />
+                                <Row className="mt-2 mt-md-2 mt-lg-2">
+                                    <Col md={{ span: 4, offset: 8 }}>
+                                        <Table>
+                                            <tbody>
+                                                <tr>
+                                                    <td style={cellStyles}>
+                                                        Total de votos
+                                                        registrados
+                                                    </td>
+                                                    <td style={cellStyles2}>
+                                                        {totalesVR}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </Table>
+                                    </Col>
+                                </Row>
+                            </>
                         </Tab>
                         <Tab
                             eventKey="profile"
@@ -615,7 +770,9 @@ const Index = (props) => {
                                         chartType={"bar"}
                                         titInfo={"Total de votos"}
                                         bgColor={coloresGrafica}
-                                        chartTitle={"TOTALES DE VOTOS PARA PARTIDOS POLITICOS Y COALICIONES"}
+                                        chartTitle={
+                                            "TOTALES DE VOTOS PARA PARTIDOS POLITICOS Y COALICIONES"
+                                        }
                                     />
                                 ) : (
                                     <p>Cargando...</p>
@@ -661,50 +818,54 @@ const Index = (props) => {
                                     useFilter={true}
                                 />
                             </div>
-                            <div className="form-group">
-                                <label htmlFor="nombreInput">
-                                    Selecciona un distrito: <code>*</code>
-                                </label>
-                                <CustomSelect
-                                    dataOptions={dataDist.map((role) => ({
-                                        value: role.id,
-                                        label: role.distrito,
-                                    }))}
-                                    preDefaultValue={distrito}
-                                    setValue={handleSelectChangeDistrito}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="nombreInput">
-                                    Selecciona una sección: <code>*</code>
-                                </label>
-                                <CustomSelect
-                                    dataOptions={dataSeccion.map((role) => ({
-                                        value: role.id,
-                                        label: role.descripcion,
-                                    }))}
-                                    preDefaultValue={seccion}
-                                    setValue={handleSelectChangeSeccion}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="nombreInput">
-                                    Selecciona una casilla: <code>*</code>
-                                </label>
-                                <CustomSelect
-                                    dataOptions={dataCasillas.map(
-                                        (casilla) => ({
-                                            value: casilla.id,
-                                            label:
-                                                casilla.descripcion +
-                                                "-" +
-                                                casilla.tipoCasilla,
-                                        })
-                                    )}
-                                    preDefaultValue={casilla}
-                                    setValue={handleSelectChangeCasilla}
-                                />
-                            </div>
+                            <Row>
+                                <Col>
+                                    <label htmlFor="nombreInput">
+                                        Selecciona un distrito: <code>*</code>
+                                    </label>
+                                    <CustomSelect
+                                        dataOptions={dataDist.map((role) => ({
+                                            value: role.id,
+                                            label: role.distrito,
+                                        }))}
+                                        preDefaultValue={distrito}
+                                        setValue={handleSelectChangeDistrito}
+                                    />
+                                </Col>
+                                <Col>
+                                    <label htmlFor="nombreInput">
+                                        Selecciona una sección: <code>*</code>
+                                    </label>
+                                    <CustomSelect
+                                        dataOptions={dataSeccion.map(
+                                            (role) => ({
+                                                value: role.id,
+                                                label: role.descripcion,
+                                            })
+                                        )}
+                                        preDefaultValue={seccion}
+                                        setValue={handleSelectChangeSeccion}
+                                    />
+                                </Col>
+                                <Col>
+                                    <label htmlFor="nombreInput">
+                                        Selecciona una casilla: <code>*</code>
+                                    </label>
+                                    <CustomSelect
+                                        dataOptions={dataCasillas.map(
+                                            (casilla) => ({
+                                                value: casilla.id,
+                                                label:
+                                                    casilla.descripcion +
+                                                    "-" +
+                                                    casilla.tipoCasilla,
+                                            })
+                                        )}
+                                        preDefaultValue={casilla}
+                                        setValue={handleSelectChangeCasilla}
+                                    />
+                                </Col>
+                            </Row>
                             <h3
                                 className="mt-3"
                                 style={{
