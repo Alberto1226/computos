@@ -73,7 +73,58 @@ export default function Dashboard({ auth }) {
         }
     };
 
+    //total de votos
+
+    const [TotalVotos, setTotalVotos] = useState("");
+    const [TotalVotosNulos, setTotalVotosNulos] = useState("");
+    const [TotalVotosNoNulos, setTotalVotosNoNuloss] = useState("");
+
+    console.log(
+        "total de votos",
+        TotalVotos,
+        TotalVotosNulos,
+        TotalVotosNoNulos
+    );
+    // Listado de Departamentos
+    const getTotalVotos = async () => {
+        try {
+            const response = await axios.get(
+                `${route("Resultados.Resultados.TotaldeVotos", {
+                    id_eleccion: 1,
+                })}`
+            );
+            if (response.status === 200) {
+                // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
+                const formattedData = response.data.map((distrito) => ({
+                    total: distrito.totalVotos,
+                    nulos: distrito.votosNulos,
+                }));
+
+                let total = parseInt(
+                    formattedData.reduce(
+                        (sum, distrito) => sum + distrito.total,
+                        0
+                    )
+                );
+                let nulos = parseInt(
+                    formattedData.reduce(
+                        (sum, distrito) => sum + distrito.nulos,
+                        0
+                    )
+                );
+                // Calcular el total de votos, los votos nulos y el total de votos menos votos nulos
+                setTotalVotos(total);
+                setTotalVotosNulos(nulos);
+                const totalVotosMenosNulos = total - nulos;
+                setTotalVotosNoNuloss(totalVotosMenosNulos);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     useEffect(() => {
+        getTotalVotos();
         getTotalCasillas();
         getDistritos();
     }, []);
@@ -162,30 +213,45 @@ export default function Dashboard({ auth }) {
                             <label htmlFor="nombreInput">
                                 Selecciona un distrito:
                             </label>
-                            <CustomSelect
-                                dataOptions={dataDist.map((role) => ({
-                                    value:
-                                        role.id +
-                                        "|" +
-                                        role.total +
-                                        "|" +
-                                        role.avance,
-                                    label: role.distrito,
-                                }))}
-                                preDefaultValue={distrito}
-                                setValue={handleSelectChangeDistrito}
-                            />
+                            <div className="row">
+                                <div className="col-11">
+                                    <CustomSelect
+                                        
+                                        dataOptions={dataDist.map((role) => ({
+                                            value:
+                                                role.id +
+                                                "|" +
+                                                role.total +
+                                                "|" +
+                                                role.avance,
+                                            label: role.distrito,
+                                        }))}
+                                        preDefaultValue={distrito}
+                                        setValue={handleSelectChangeDistrito}
+                                    />
+                                </div>
+                                <div className="col-1">
+                                    {" "}
+                                    <button
+                                        onClick={() => window.location.reload()}
+                                        className="btn btn-success"
+                                    >
+                                        <span className="fas fa-sync-alt" />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+
                         <div className="card-footer">
                             <div className="row">
                                 <div className="col-md-6 col-sm-12">
-                                    <div className="row">
+                                    <div className="row text-xs">
                                         <div className="col-sm-4 border-right">
                                             <div className="description-block">
                                                 <h5 className="description-header">
                                                     {totalLista}
                                                 </h5>
-                                                <span className="description-text">
+                                                <span className="description-text text-xs">
                                                     Lista nominal del distrito
                                                 </span>
                                             </div>
@@ -195,7 +261,8 @@ export default function Dashboard({ auth }) {
                                                 <h5 className="description-header">
                                                     {totalAvance}
                                                 </h5>
-                                                <span className="description-text">
+
+                                                <span className="description-text text-2xs">
                                                     Avance
                                                 </span>
                                             </div>
@@ -205,7 +272,7 @@ export default function Dashboard({ auth }) {
                                                 <h5 className="description-header">
                                                     {porcentaje}%
                                                 </h5>
-                                                <span className="description-text">
+                                                <span className="description-text text-xs">
                                                     Porcentaje capturado
                                                 </span>
                                             </div>
@@ -214,6 +281,7 @@ export default function Dashboard({ auth }) {
                                     <div className="flex justify-center items-center">
                                         {distrito ? (
                                             <DynamicChart
+                                           
                                                 frecuencias={datosGraph}
                                                 etiquetas={etiquetasGraph}
                                                 chartType={"pie"}
@@ -242,6 +310,50 @@ export default function Dashboard({ auth }) {
                                             bgColor={["#4AF891", "#E1E1E1"]}
                                             chartTitle={`Avances de actas: ${actasCapturadas} capturadas, ${actasFaltantes} faltantes, ${TotalactasaCapturadas} totales`}
                                         />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="row mt-2">
+                            <div className="col-lg-4 col-sm-12">
+                                <div className="small-box bg-success">
+                                    <div className="inner">
+                                        <h3>
+                                            {TotalVotos}
+                                            <sup style={{ fontSize: 20 }}></sup>
+                                        </h3>
+                                        <p>Total de votos</p>
+                                    </div>
+                                    <div className="icon">
+                                        <i className="ion ion-stats-bars" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-lg-4 col-sm-12">
+                                <div className="small-box bg-success">
+                                    <div className="inner">
+                                        <h3>
+                                            {TotalVotosNulos}
+                                            <sup style={{ fontSize: 20 }}></sup>
+                                        </h3>
+                                        <p>Total de votos nulos</p>
+                                    </div>
+                                    <div className="icon">
+                                        <i className="ion ion-stats-bars" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-lg-4 col-sm-12">
+                                <div className="small-box bg-success">
+                                    <div className="inner">
+                                        <h3>
+                                            {TotalVotosNoNulos}
+                                            <sup style={{ fontSize: 20 }}></sup>
+                                        </h3>
+                                        <p>Votos validos</p>
+                                    </div>
+                                    <div className="icon">
+                                        <i className="ion ion-stats-bars" />
                                     </div>
                                 </div>
                             </div>

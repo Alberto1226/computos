@@ -53,7 +53,7 @@ class ResultadosController extends Controller
             $casilla->save();
         }
     }
-    
+
 
     /**
      * Display the specified resource.
@@ -101,13 +101,15 @@ class ResultadosController extends Controller
             ->join('casilla', 'resultados.id_casilla', '=', 'casilla.id')
             ->join('secciones', 'casilla.id_seccion', '=', 'secciones.id') // Nueva línea
             ->where('resultados.id_eleccion', $id_eleccion)
-            ->select('resultados.*',
+            ->select(
+                'resultados.*',
                 DB::raw('CASE WHEN resultados.id_partido != 0 THEN partidospoliticos.nombrePartido ELSE NULL END as nombrePartido'),
                 DB::raw('CASE WHEN resultados.id_partido != 0 THEN partidospoliticos.abrebiatura ELSE NULL END as abreviaturaPartido'),
                 DB::raw('CASE WHEN resultados.id_partido != 0 THEN partidospoliticos.color ELSE NULL END as colorPartido'),
                 DB::raw('CASE WHEN resultados.id_coalicion != 0 THEN coaliciones.descripcion ELSE NULL END as nombreCoalicion'),
                 'secciones.descripcion as descripcionSeccion', // Nueva línea
-                'casilla.tipoCasilla as tipoDeCasilla')
+                'casilla.tipoCasilla as tipoDeCasilla'
+            )
             ->orderBy('secciones.descripcion')
             ->get();
 
@@ -115,5 +117,20 @@ class ResultadosController extends Controller
         return response()->json($resultados);
     }
 
-    
+    public function TotaldeVotos($id_eleccion)
+    {
+        $resultados = DB::table('resultados')
+        ->leftJoin('partidospoliticos', 'resultados.id_partido', '=', 'partidospoliticos.id')
+        ->where('resultados.id_eleccion', $id_eleccion)
+        ->select(
+            DB::raw('SUM(resultados.total) as totalVotos'),
+            DB::raw('SUM(CASE WHEN partidospoliticos.nombrePartido = "VOTOS NULOS" THEN resultados.total ELSE 0 END) as votosNulos')
+        );
+
+    // Devolver una respuesta JSON con los resultados
+    return response()->json($resultados->get());
+    }
+
+
+
 }
