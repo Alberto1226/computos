@@ -138,7 +138,7 @@ export default class Menu extends Component {
                                         className="nav-link"
                                     >
                                         <i className="nav-icon fas fa-chart-bar" />
-                                        <p>Resultados</p>
+                                        <p>Registro de Actas</p>
                                     </a>
                                 </li>
 

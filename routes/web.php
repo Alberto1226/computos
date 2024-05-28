@@ -110,6 +110,7 @@ Route::prefix('Casillas')->group(function () {
         Route::delete('/delete-casilla/{id}', 'destroy')->name('Casillas.Casillas.destroy');
         Route::post('/upload-csv', 'storeFromCSV')->name('Casillas.Casillas.storeFromCSV');
         Route::get('/listCasillasSeccion/{id_seccion}', 'listarCasillaPorSeccion')->name('Casillas.Casillas.listarCasillaPorSeccion');
+        Route::get('/listTcasillas', 'countCasillas')->name('Casillas.Casillas.countCasillas');
     });
 });
 

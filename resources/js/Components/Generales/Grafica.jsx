@@ -49,7 +49,7 @@ const DynamicChart = ({ frecuencias, etiquetas, chartType, chartTitle, titInfo, 
 
   }
   return (
-    <div style={{ width: "90%", maxHeight: "400px", display: "flex", alignItems: "center", alignContent: "center" }}>
+    <div className="flex justify-center items-center" style={{maxHeight:'500px'}}>
       <ChartComponent data={data} options={chartOptions} />
     </div>
   );

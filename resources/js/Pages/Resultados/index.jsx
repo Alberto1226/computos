@@ -626,7 +626,7 @@ const Index = (props) => {
                 </ContainerLTE>
 
                 <ModalCustom
-                    tamaño={"lg"}
+                    tamaño={"xl"}
                     title={
                         modo === "Agregar"
                             ? "Registrar resultados"

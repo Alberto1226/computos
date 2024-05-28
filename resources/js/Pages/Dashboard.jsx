@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 export default function Dashboard({ auth }) {
     const [distrito, setDistrito] = useState(null);
     const [dataDist, setDataDist] = useState([]);
+
     // Listado de Departamentos
     const getDistritos = async () => {
         try {
@@ -32,7 +33,48 @@ export default function Dashboard({ auth }) {
         }
     };
 
+    //listar total de casillas
+    const [graficaTot, setGraficaTot] = useState([]);
+    // console.log('graficaTot', totalCasillas)
+    const [porcentajes, setPorcentajes] = useState([]);
+    const [casillasData, setCasillasData] = useState({
+        totalCasillas: 0,
+        avanceCasillas: 0,
+    }); // Añadido este estado
+    const actasCapturadas = casillasData.avanceCasillas;
+    const TotalactasaCapturadas = casillasData.totalCasillas;
+    const actasFaltantes =
+        casillasData.totalCasillas - casillasData.avanceCasillas;
+    const getTotalCasillas = async () => {
+        try {
+            const response = await axios.get(
+                `${route("Casillas.Casillas.countCasillas")}`
+            );
+            if (response.status === 200) {
+                console.log("Response data:", response.data);
+                //setTotalCasillas(response);
+                // Acceder a las propiedades `totalCasillas` y `avanceCasillas`
+                const { totalCasillas, avanceCasillas } = response.data;
+                setCasillasData({ totalCasillas, avanceCasillas });
+                const porcentajeAvance = (
+                    (avanceCasillas * 100) /
+                    totalCasillas
+                ).toFixed(2);
+                const porcentajeFaltante = 100 - parseFloat(porcentajeAvance);
+
+                setGraficaTot([
+                    parseFloat(porcentajeAvance),
+                    porcentajeFaltante,
+                ]);
+                setPorcentajes(["Avance", "Faltante"]);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     useEffect(() => {
+        getTotalCasillas();
         getDistritos();
     }, []);
 
@@ -45,6 +87,7 @@ export default function Dashboard({ auth }) {
     const [totalAvance, setTotalAvance] = useState(0);
     const [porcentaje, setPorcentaje] = useState(0);
     const [datosGraph, setDatosGraph] = useState([]);
+    console.log("datosGraoh", datosGraph);
     const [etiquetasGraph, setEtiquetasGraph] = useState([]);
     useEffect(() => {
         if (distrito) {
@@ -66,32 +109,32 @@ export default function Dashboard({ auth }) {
 
     const handleConfirmDelete = () => {
         Swal.fire({
-            title: '¿Estás seguro?',
+            title: "¿Estás seguro?",
             text: "Esta acción reiniciará la base de datos y no se puede deshacer.",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, reiniciar!',
-            cancelButtonText: 'No, cancelar!'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, reiniciar!",
+            cancelButtonText: "No, cancelar!",
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
-                .delete(route("Elecciones.Elecciones.resetDatabase"))
-                .then((response) => {
-                    if (response.status === 200) {
-                        console.log('first', response.data.message)
-                        Swal.fire({
-                            title: response.data.message,
-                            icon: "success",
-                            showConfirmButton: false,
-                            timer: 1600,
-                        });
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error al eliminar el eleccion:", error);
-                });
+                    .delete(route("Elecciones.Elecciones.resetDatabase"))
+                    .then((response) => {
+                        if (response.status === 200) {
+                            console.log("first", response.data.message);
+                            Swal.fire({
+                                title: response.data.message,
+                                icon: "success",
+                                showConfirmButton: false,
+                                timer: 1600,
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error al eliminar el eleccion:", error);
+                    });
             }
         });
     };
@@ -106,10 +149,15 @@ export default function Dashboard({ auth }) {
             }
         >
             <Head title="Dashboard" />
-            <button className='btn btn-danger btn-xs float-end' onClick={handleConfirmDelete}><span className='fas fa-trash'/> Truncar BD</button>
+            <button
+                className="btn btn-danger btn-xs float-end"
+                onClick={handleConfirmDelete}
+            >
+                <span className="fas fa-trash" /> Truncar BD
+            </button>
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4">
                         <div className="form-group">
                             <label htmlFor="nombreInput">
                                 Selecciona un distrito:
@@ -130,63 +178,71 @@ export default function Dashboard({ auth }) {
                         </div>
                         <div className="card-footer">
                             <div className="row">
-                                <div className="col-sm-4 border-right">
-                                    <div className="description-block">
-                                        <h5 className="description-header">
-                                            {totalLista}
-                                        </h5>
-                                        <span className="description-text">
-                                            Lista nominal del distrito
-                                        </span>
+                                <div className="col-md-6 col-sm-12">
+                                    <div className="row">
+                                        <div className="col-sm-4 border-right">
+                                            <div className="description-block">
+                                                <h5 className="description-header">
+                                                    {totalLista}
+                                                </h5>
+                                                <span className="description-text">
+                                                    Lista nominal del distrito
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-4 border-right">
+                                            <div className="description-block">
+                                                <h5 className="description-header">
+                                                    {totalAvance}
+                                                </h5>
+                                                <span className="description-text">
+                                                    Avance
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-4">
+                                            <div className="description-block">
+                                                <h5 className="description-header">
+                                                    {porcentaje}%
+                                                </h5>
+                                                <span className="description-text">
+                                                    Porcentaje capturado
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="col-sm-4 border-right">
-                                    <div className="description-block">
-                                        <h5 className="description-header">
-                                            {totalAvance}
-                                        </h5>
-                                        <span className="description-text">
-                                            Avance
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="col-sm-4">
-                                    <div className="description-block">
-                                        <h5 className="description-header">
-                                            {porcentaje}%
-                                        </h5>
-                                        <span className="description-text">
-                                            Porcentaje capturado
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="mt-3">
-                                    <Row>
-                                        <Col md={{ span: 6, offset: 4 }}>
-                                            {distrito ? (
-                                                <DynamicChart
-                                                    frecuencias={datosGraph}
-                                                    etiquetas={etiquetasGraph}
-                                                    chartType={"pie"}
-                                                    bgColor={[
-                                                        "#4AF891",
-                                                        "#E1E1E1",
-                                                    ]}
-                                                    chartTitle={
-                                                        "Avances de votos registrados"
-                                                    }
+                                    <div className="flex justify-center items-center">
+                                        {distrito ? (
+                                            <DynamicChart
+                                                frecuencias={datosGraph}
+                                                etiquetas={etiquetasGraph}
+                                                chartType={"pie"}
+                                                bgColor={["#4AF891", "#E1E1E1"]}
+                                                chartTitle={
+                                                    "Avances de votos registrados"
+                                                }
+                                            />
+                                        ) : (
+                                            <p>
+                                                Esperando datos{" "}
+                                                <Spinner
+                                                    animation="grow"
+                                                    size="sm"
                                                 />
-                                            ) : (
-                                                <p>
-                                                    Esperando datos{" "}
-                                                    <Spinner
-                                                        animation="grow"
-                                                        size="sm"
-                                                    />
-                                                </p>
-                                            )}
-                                        </Col>
-                                    </Row>
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="col-md-6 col-sm-12">
+                                    <div className="  justify-center align-middle">
+                                        <DynamicChart
+                                            frecuencias={graficaTot}
+                                            etiquetas={porcentajes}
+                                            chartType={"pie"}
+                                            bgColor={["#4AF891", "#E1E1E1"]}
+                                            chartTitle={`Avances de actas: ${actasCapturadas} capturadas, ${actasFaltantes} faltantes, ${TotalactasaCapturadas} totales`}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>

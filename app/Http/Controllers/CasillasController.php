@@ -41,7 +41,7 @@ class CasillasController extends Controller
             'votosNulos' => 'nullable|int',
             'votosTotales' => 'nullable|int',
             'ubicacion' => 'required|string',
-            
+
         ]);
 
         $id = Auth::user()->id;
@@ -153,11 +153,11 @@ class CasillasController extends Controller
     public function listarCasillas()
     {
         $seccionesConDistrito = DB::table('casilla')
-        ->join('secciones', 'casilla.id_seccion', '=', 'secciones.id')
-            ->select('casilla.id', 'casilla.ubicacion','casilla.id_seccion', 'casilla.tipoCasilla', 'casilla.listaNominal','secciones.descripcion')
+            ->join('secciones', 'casilla.id_seccion', '=', 'secciones.id')
+            ->select('casilla.id', 'casilla.ubicacion', 'casilla.id_seccion', 'casilla.tipoCasilla', 'casilla.listaNominal', 'secciones.descripcion')
             ->get();
-    // Devolver las secciones como respuesta JSON
-    return response()->json($seccionesConDistrito);
+        // Devolver las secciones como respuesta JSON
+        return response()->json($seccionesConDistrito);
 
     }
 
@@ -167,12 +167,23 @@ class CasillasController extends Controller
         $seccionesConDistrito = DB::table('casilla')
             ->join('secciones', 'casilla.id_seccion', '=', 'secciones.id')
             ->where('casilla.id_seccion', $id_seccion)
-            ->select('casilla.id', 'casilla.id_seccion', 'casilla.tipoCasilla', 'casilla.listaNominal','secciones.descripcion')
+            ->where('casilla.status', 0)
+            ->select('casilla.id', 'casilla.id_seccion', 'casilla.tipoCasilla', 'casilla.listaNominal', 'secciones.descripcion')
             ->get();
 
         // Devolver las secciones como respuesta JSON
         return response()->json($seccionesConDistrito);
     }
+
+    public function countCasillas()
+    {
+        $totalCasillas = DB::table('casilla')->count();
+        $avanceCasillas = DB::table('casilla')->where('status', 1)->count();
+
+        // Devolver el total de casillas y el avance como respuesta JSON
+        return response()->json(['totalCasillas' => $totalCasillas, 'avanceCasillas' => $avanceCasillas]);
+    }
+
 
 
 }

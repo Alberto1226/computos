@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CasillasModel;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -46,6 +47,10 @@ class ResultadosController extends Controller
             $regTotales->save();
             $des->avanceVotos += $total['total'];
             $des->save();
+
+            $casilla = CasillasModel::findOrFail($total['id_casilla']);
+            $casilla->status = 1;
+            $casilla->save();
         }
     }
     

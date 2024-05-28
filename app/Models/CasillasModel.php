@@ -18,6 +18,7 @@ class CasillasModel extends Model
         'votosNulos',
         'votosTotales',
         'ubicacion',
+        'status',
         'id_user',
     ];
 }
