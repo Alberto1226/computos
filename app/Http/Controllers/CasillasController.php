@@ -154,7 +154,7 @@ class CasillasController extends Controller
     {
         $seccionesConDistrito = DB::table('casilla')
             ->join('secciones', 'casilla.id_seccion', '=', 'secciones.id')
-            ->select('casilla.id', 'casilla.ubicacion', 'casilla.id_seccion', 'casilla.tipoCasilla', 'casilla.listaNominal', 'secciones.descripcion')
+            ->select('casilla.id', 'casilla.ubicacion', 'casilla.id_seccion','casilla.status', 'casilla.tipoCasilla', 'casilla.listaNominal', 'secciones.descripcion')
             ->get();
         // Devolver las secciones como respuesta JSON
         return response()->json($seccionesConDistrito);

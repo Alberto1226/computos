@@ -13,7 +13,7 @@ const Index = () => {
 
     const [id_seccion, setIdSeccion] = useState("");
     const [tipoCasilla, setTipoCasilla] = useState("");
-    
+
     const [votosNulos, setVotosNulos] = useState("");
     const [votosTotales, setVotosTotales] = useState("");
     const [ubicacion, setUbicacion] = useState("");
@@ -33,7 +33,7 @@ const Index = () => {
         const formData = new FormData();
         formData.append("id_seccion", id_seccion);
         formData.append("tipoCasilla", tipoCasilla);
-        
+
         formData.append("votosNulos", votosNulos);
         formData.append("votosTotales", votosTotales);
         formData.append("ubicacion", ubicacion);
@@ -49,7 +49,7 @@ const Index = () => {
                     setReloadData(true);
                     setIdSeccion("");
                     setTipoCasilla("");
-                    
+
                     setVotosNulos("");
                     setVotosTotales("");
                     setUbicacion("");
@@ -97,7 +97,7 @@ const Index = () => {
                     seccion: Casilla.descripcion,
                     id_seccion: Casilla.id_seccion,
                     tipoCasilla: Casilla.tipoCasilla,
-                    
+                    status: Casilla.status,
                     votosNulos: Casilla.votosNulos,
                     votosTotales: Casilla.votosTotales,
                     ubicacion: Casilla.ubicacion,
@@ -145,7 +145,26 @@ const Index = () => {
             name: "Tipo de Casilla",
             selector: (row) => row.tipoCasilla,
         },
-        
+        {
+            name: "Estado",
+            selector: (row) => (
+                <>
+                    <div>
+                        
+                        <div
+                            style={{
+                                height: "30px",
+                                width: "30px",
+                                backgroundColor:
+                                    row.status === 0 ? "red" : "green",
+                                borderRadius: "50%",
+                            }}
+                        />
+                    </div>
+                </>
+            ),
+        },
+
         {
             name: "Ubicación",
             selector: (row) => row.ubicacion,
@@ -184,12 +203,12 @@ const Index = () => {
         if (modo === "Editar" && CasillaSeleccionada) {
             setIdSeccion(CasillaSeleccionada.id_seccion);
             setTipoCasilla(CasillaSeleccionada.tipoCasilla);
-            
+
             setUbicacion(CasillaSeleccionada.ubicacion);
         } else {
             setIdSeccion("");
             setTipoCasilla("");
-            
+
             setVotosNulos("");
             setVotosTotales("");
             setUbicacion("");
@@ -204,7 +223,7 @@ const Index = () => {
                 params: {
                     id_seccion: id_seccion,
                     tipoCasilla: tipoCasilla,
-                    
+
                     votosNulos: votosNulos,
                     votosTotales: votosTotales,
                     ubicacion: ubicacion,
@@ -400,7 +419,7 @@ const Index = () => {
                                     }
                                 />
                             </div>
-                           
+
                             <div className="form-group">
                                 {/** <label htmlFor="VotosNulosInput">
                                     Votos Nulos<code>*</code>
