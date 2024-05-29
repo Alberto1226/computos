@@ -108,7 +108,8 @@ class ResultadosController extends Controller
                 DB::raw('CASE WHEN resultados.id_partido != 0 THEN partidospoliticos.color ELSE NULL END as colorPartido'),
                 DB::raw('CASE WHEN resultados.id_coalicion != 0 THEN coaliciones.descripcion ELSE NULL END as nombreCoalicion'),
                 'secciones.descripcion as descripcionSeccion', // Nueva línea
-                'casilla.tipoCasilla as tipoDeCasilla'
+                'casilla.tipoCasilla as tipoDeCasilla',
+                'secciones.id as seccionCons',
             )
             ->orderBy('secciones.descripcion')
             ->get();

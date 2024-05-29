@@ -168,7 +168,7 @@ const Index = (props) => {
     const [dataFilter, setDataFilter] = useState([]);
     const [totalesVR, setTotalesVR] = useState(0);
     useEffect(() => {
-        console.log("dataResultadosEleccion", dataFilter);
+        //console.log("dataResultadosEleccion", dataFilter);
         let totalVotos = 0;
         dataFilter.forEach((registro) => {
             totalVotos += registro.total;
@@ -186,7 +186,7 @@ const Index = (props) => {
         // Convertir el objeto a un arreglo
         let resultadoFinal = Object.values(agrupado);
 
-        console.log("----------------->", resultadoFinal);
+        //console.log("----------------->", resultadoFinal);
 
         let ppOCoal = resultadoFinal.map((item) => item.nombrePartidoOCoal);
         setPartidosOCoalicion(ppOCoal);
@@ -385,10 +385,6 @@ const Index = (props) => {
         setInputsCoa(newInputsCoa);
     };
 
-    useEffect(() => {
-        console.log("inputsCoa", inputsCoa);
-    }, [inputsCoa]);
-
     /**Modals */
 
     const [modalOpen, setModalOpen] = useState(false);
@@ -532,8 +528,14 @@ const Index = (props) => {
     useEffect(() => {
         if (seccionSelectFil) {
             getCasillasFil(seccionSelectFil);
+            const filter = dataResultadosEleccion.filter(
+                (data) => data.seccionCons === seccionSelectFil
+            );
+            setDataFilter(filter);
+        } else {
+            setDataFilter(dataResultadosEleccion);
         }
-    }, [seccionSelectFil]);
+    }, [seccionSelectFil, dataResultadosEleccion]);
 
     const [casillaSelectFil, setCasillaSelectFil] = useState(null);
 
@@ -543,7 +545,7 @@ const Index = (props) => {
     };
 
     useEffect(() => {
-        console.log("first", dataResultadosEleccion);
+        //console.log("first", dataResultadosEleccion);
         if (casillaSelectFil) {
             const filter = dataResultadosEleccion.filter(
                 (data) => data.id_casilla === casillaSelectFil
@@ -559,32 +561,51 @@ const Index = (props) => {
     const [dataArray, setDataArray] = useState([]);
 
     const handleAddToDataArray = () => {
-        setDataArray([]);
-        setDataArray((prevDataArray) => [
-            ...prevDataArray,
-            ...inputs.map((input, index) => ({
-                id_partido: dataPartidosPoliticos[index].id,
-                total: parseInt(input),
+        setDataArray([])
+        const newDataArray = [];
+    
+        // Validación para inputs
+        for (let i = 0; i < inputs.length; i++) {
+            const parsedInput = parseInt(inputs[i]);
+            if (isNaN(parsedInput) || parsedInput < 0) {
+                alert("No puede haber números negativos en inputs");
+                return; // Salir de la función sin construir el arreglo
+            }
+            newDataArray.push({
+                id_partido: dataPartidosPoliticos[i].id,
+                total: parsedInput,
                 id_casilla: casilla,
                 id_eleccion: eleccion,
                 id_coalicion: 0,
                 id_distrito: distrito,
-            })),
-            ...inputsCoa.map((inputCoa, index) => ({
+            });
+        }
+    
+        // Validación para inputsCoa
+        for (let i = 0; i < inputsCoa.length; i++) {
+            const parsedInputCoa = parseInt(inputsCoa[i]);
+            if (isNaN(parsedInputCoa) || parsedInputCoa < 0) {
+                alert("No puede haber números negativos en inputsCoa");
+                return; // Salir de la función sin construir el arreglo
+            }
+            newDataArray.push({
                 id_partido: 0,
-                total: parseInt(inputCoa),
+                total: parsedInputCoa,
                 id_casilla: casilla,
                 id_eleccion: eleccion,
-                id_coalicion: dataCoaliciones[index].id,
+                id_coalicion: dataCoaliciones[i].id,
                 id_distrito: distrito,
-            })),
-        ]);
+            });
+        }
+    
+        setDataArray((prevDataArray) => [...prevDataArray, ...newDataArray]);
     };
-
+    
+/*
     useEffect(() => {
         console.log("dataArray", dataArray);
     }, [dataArray]);
-
+*/
     const registrarTotales = () => {
         const formData = new FormData();
         const totales = dataArray;
@@ -902,6 +923,7 @@ const Index = (props) => {
                                                     placeholder="Votos"
                                                     className="form-control form-control-border"
                                                     value={inputs[index]}
+                                                    min={0}
                                                     onChange={(e) =>
                                                         handleInputChange(
                                                             index,
@@ -968,6 +990,7 @@ const Index = (props) => {
                                                 type="number"
                                                 placeholder="Votos"
                                                 className="form-control form-control-border mt-2"
+                                                min={0}
                                                 value={inputsCoa[index]}
                                                 onChange={(e) =>
                                                     handleInputChangeCoal(
