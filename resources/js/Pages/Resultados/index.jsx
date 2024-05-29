@@ -762,7 +762,7 @@ const Index = (props) => {
                                 </span>
                             }
                         >
-                            <div style={{ maxHeight: "50vh" }}>
+                            <div style={{ maxHeight: "60vh" }}>
                                 {dataResultadosEleccion.length > 0 ? (
                                     <DynamicChart
                                         frecuencias={totalpartidosOCoalicion}
@@ -773,6 +773,7 @@ const Index = (props) => {
                                         chartTitle={
                                             "TOTALES DE VOTOS PARA PARTIDOS POLITICOS Y COALICIONES"
                                         }
+                                        alto={"500px"}
                                     />
                                 ) : (
                                     <p>Cargando...</p>

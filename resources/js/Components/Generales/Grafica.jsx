@@ -2,7 +2,7 @@ import React from "react";
 import { Line, Bar, Pie, Doughnut } from "react-chartjs-2";
 import 'chart.js/auto';
 
-const DynamicChart = ({ frecuencias, etiquetas, chartType, chartTitle, titInfo, bgColor }) => {
+const DynamicChart = ({ frecuencias, etiquetas, chartType, chartTitle, titInfo, bgColor,alto }) => {
   const data = {
     labels: etiquetas,
     datasets: [
@@ -49,7 +49,7 @@ const DynamicChart = ({ frecuencias, etiquetas, chartType, chartTitle, titInfo, 
 
   }
   return (
-    <div className="flex justify-center items-center" style={{maxHeight:'500px'}}>
+    <div className="flex justify-center items-center" style={{maxHeight: alto}}>
       <ChartComponent data={data} options={chartOptions} />
     </div>
   );
