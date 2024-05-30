@@ -641,7 +641,7 @@ export default function Dashboard({ auth }) {
                     <div style={{ display: "flex", alignItems: "center" }}>
                     <img
                         //src={`/storage/app/public/${row.img}`}
-                        src={`/storage/${row.imagenPartido}`}
+                        src={`public/storage/${row.imagenPartido}`}
                         alt="Imagen del partido"
                         style={{
                             width: "30px",
