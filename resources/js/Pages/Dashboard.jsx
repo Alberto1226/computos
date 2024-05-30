@@ -46,15 +46,18 @@ export default function Dashboard({ auth }) {
     //listar total de casillas
     const [graficaTot, setGraficaTot] = useState([]);
     // console.log('graficaTot', totalCasillas)
-    const [porcentajes, setPorcentajes] = useState([]);
+    const [etiqGraficas, setEtiqGraficas] = useState([]);
     const [casillasData, setCasillasData] = useState({
         totalCasillas: 0,
+        casillasCapturadas: 0,
         avanceCasillas: 0,
     }); // Añadido este estado
-    const actasCapturadas = casillasData.avanceCasillas;
-    const TotalactasaCapturadas = casillasData.totalCasillas;
-    const actasFaltantes =
-        casillasData.totalCasillas - casillasData.avanceCasillas;
+
+    // const actasCapturadas = casillasData.avanceCasillas;
+    // const TotalactasaCapturadas = casillasData.totalCasillas;
+    // const actasFaltantes =
+    //     casillasData.totalCasillas - casillasData.avanceCasillas;
+
     const getTotalCasillas = async () => {
         try {
             const response = await axios.get(
@@ -64,19 +67,21 @@ export default function Dashboard({ auth }) {
                 
                 //setTotalCasillas(response);
                 // Acceder a las propiedades `totalCasillas` y `avanceCasillas`
-                const { totalCasillas, avanceCasillas } = response.data;
-                setCasillasData({ totalCasillas, avanceCasillas });
-                const porcentajeAvance = (
-                    (avanceCasillas * 100) /
-                    totalCasillas
-                ).toFixed(2);
-                const porcentajeFaltante = 100 - parseFloat(porcentajeAvance);
+                const { totalCasillas, casillasCapturadas, avanceCasillas } =
+                    response.data;
+                setCasillasData({
+                    totalCasillas,
+                    casillasCapturadas,
+                    avanceCasillas,
+                });
 
                 setGraficaTot([
-                    parseFloat(porcentajeAvance),
-                    porcentajeFaltante,
+                    totalCasillas,
+                    casillasCapturadas,
+                    avanceCasillas,
                 ]);
-                setPorcentajes(["Avance", "Faltante"]);
+                const etGra = ["Esperadas", "Capturadas", "Avance"]
+                setEtiqGraficas(etGra);
             }
         } catch (error) {
             console.log(error);
@@ -648,7 +653,6 @@ export default function Dashboard({ auth }) {
                 </>
             ),
         },
-      
 
         {
             name: "TOTAL DE VOTOS POR CANDIDATURA",
@@ -1055,6 +1059,98 @@ export default function Dashboard({ auth }) {
                                             )}
                                         </div>
                                     </div>
+                                    <div className="col-md-12 col-sm-12">
+                                        <div className="row text-xs bg-info">
+                                            <div className="col-sm-4 border-right">
+                                                <div className="description-block">
+                                                    <h5 className="description-header">
+                                                        {
+                                                            casillasData.totalCasillas
+                                                        }
+                                                    </h5>
+                                                    <h5 className="description-header">
+                                                        100.00%
+                                                    </h5>
+                                                    <span className="description-text text-xs">
+                                                        Actas Esperadas
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="col-sm-4 border-right">
+                                                <div className="description-block">
+                                                    <h5 className="description-header">
+                                                        {
+                                                            casillasData.casillasCapturadas
+                                                        }
+                                                    </h5>
+                                                    <h5 className="description-header">
+                                                        {(
+                                                            (casillasData.casillasCapturadas *
+                                                                100) /
+                                                            casillasData.totalCasillas
+                                                        ).toFixed(2)}
+                                                        %
+                                                    </h5>
+
+                                                    <span className="description-text text-2xs">
+                                                        Actas Capturadas
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="col-sm-4 ">
+                                                <div className="description-block">
+                                                    <h5 className="description-header">
+                                                        {
+                                                            casillasData.avanceCasillas
+                                                        }
+                                                    </h5>
+                                                    <h5 className="description-header">
+                                                        {(
+                                                            (casillasData.avanceCasillas *
+                                                                100) /
+                                                            casillasData.totalCasillas
+                                                        ).toFixed(2)}
+                                                        %
+                                                    </h5>
+                                                    <span
+                                                        className="description-text"
+                                                        style={{
+                                                            fontSize: "10px",
+                                                        }}
+                                                    >
+                                                        Actas Contabilizadas
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="justify-center align-middle">
+                                            {distrito ? (
+                                                <DynamicChart
+                                                    frecuencias={graficaTot}
+                                                    etiquetas={etiqGraficas}
+                                                    chartType={"bar"}
+                                                    bgColor={[
+                                                        "#883586",
+                                                        "#4b1a4f",
+                                                        "#a892ce",
+                                                    ]}
+                                                    chartTitle={
+                                                        "ACTAS DEL MUNICIPIO"
+                                                    }
+                                                    titInfo={"Total de casillas"}
+                                                    alto={"300px"}
+                                                />
+                                            ) : (
+                                                <p>
+                                                    Esperando datos{" "}
+                                                    <Spinner
+                                                        animation="grow"
+                                                        size="sm"
+                                                    />
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
                                     <div className="col-md-12 col-sm-12 ">
                                         <div className="row text-xs bg-info">
                                             <div className="col-sm-4 border-right">
@@ -1089,8 +1185,8 @@ export default function Dashboard({ auth }) {
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <div className="  justify-center align-middle">
+                                        {/*}
+                                        <div className="  justify-center align-middle" >
                                             <DynamicChart
                                                 frecuencias={graficaTot}
                                                 etiquetas={porcentajes}
@@ -1099,7 +1195,7 @@ export default function Dashboard({ auth }) {
                                                 chartTitle={`Avances de actas: ${actasCapturadas} capturadas, ${actasFaltantes} faltantes, ${TotalactasaCapturadas} totales`}
                                                 alto={"300px"}
                                             />
-                                        </div>
+                                        </div>*/}
                                     </div>
                                 </div>
                             </div>

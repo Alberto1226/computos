@@ -208,9 +208,10 @@ class CasillasController extends Controller
     {
         $totalCasillas = DB::table('casilla')->count();
         $avanceCasillas = DB::table('casilla')->where('status', 1)->count();
+        $casillasCapturadas = DB::table('casilla')->where('status', '<>', 0)->count();
 
         // Devolver el total de casillas y el avance como respuesta JSON
-        return response()->json(['totalCasillas' => $totalCasillas, 'avanceCasillas' => $avanceCasillas]);
+        return response()->json(['totalCasillas' => $totalCasillas, 'casillasCapturadas' => $casillasCapturadas, 'avanceCasillas' => $avanceCasillas]);
     }
 
 
