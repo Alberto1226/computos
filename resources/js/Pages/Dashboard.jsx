@@ -848,12 +848,12 @@ export default function Dashboard({ auth }) {
                         >
                             <span className="fas fa-sync-alt" />
                         </button>
-                        {/** <button
+                        <button
                             className="btn btn-danger btn-xs float-end"
                             onClick={handleConfirmDelete}
                         >
                             <span className="fas fa-trash" /> Truncar BD
-                        </button>*/}
+                        </button>
                     </>
                 }
             >
