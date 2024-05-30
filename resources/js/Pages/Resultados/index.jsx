@@ -322,6 +322,7 @@ const Index = (props) => {
                     nombrePartido: PartidoPolitico.nombrePartido,
                     abreviatura: PartidoPolitico.abrebiatura,
                     color: PartidoPolitico.color,
+                    imagen: PartidoPolitico.imagen,
                 }));
                 // Establecer los departamentos en el estado
                 setDataPartidosPoliticos(formattedData);
@@ -562,9 +563,9 @@ const Index = (props) => {
     const [dataArray, setDataArray] = useState([]);
 
     const handleAddToDataArray = () => {
-        setDataArray([])
+        setDataArray([]);
         const newDataArray = [];
-    
+
         // Validación para inputs
         for (let i = 0; i < inputs.length; i++) {
             const parsedInput = parseInt(inputs[i]);
@@ -581,7 +582,7 @@ const Index = (props) => {
                 id_distrito: distrito,
             });
         }
-    
+
         // Validación para inputsCoa
         for (let i = 0; i < inputsCoa.length; i++) {
             const parsedInputCoa = parseInt(inputsCoa[i]);
@@ -598,11 +599,11 @@ const Index = (props) => {
                 id_distrito: distrito,
             });
         }
-    
+
         setDataArray((prevDataArray) => [...prevDataArray, ...newDataArray]);
     };
-    
-/*
+
+    /*
     useEffect(() => {
         console.log("dataArray", dataArray);
     }, [dataArray]);
@@ -904,11 +905,12 @@ const Index = (props) => {
                                     {dataPartidosPoliticos.map(
                                         (partido, index) => (
                                             <Col key={partido.id}>
-                                                <div className="d-flex justify-content-center">
+                                                <div className="d-flex justify-content-center text-xs">
                                                     <label>
                                                         {partido.abreviatura}
                                                     </label>
-                                                    <div
+
+                                                    {/**  <div
                                                         className="ml-2"
                                                         style={{
                                                             backgroundColor:
@@ -917,8 +919,21 @@ const Index = (props) => {
                                                             height: "20px",
                                                             borderRadius: "50%",
                                                         }}
-                                                    ></div>
+                                                    ></div>*/}
                                                 </div>
+                                                <div className="d-flex justify-content-center">
+                                                    {" "}
+                                                    <img
+                                                        //src={`/storage/app/public/${row.img}`}
+                                                        src={`/storage/${partido.imagen}`}
+                                                        alt="Imagen del partido"
+                                                        style={{
+                                                            width: "30px",
+                                                            height: "30px",
+                                                        }}
+                                                    />
+                                                </div>
+
                                                 <input
                                                     type="number"
                                                     placeholder="Votos"
@@ -952,7 +967,7 @@ const Index = (props) => {
                                     {dataCoaliciones.map((coalicion, index) => (
                                         <Col key={coalicion.id}>
                                             <div
-                                                className="d-flex justify-content-center"
+                                                className="d-flex justify-content-center text-xs"
                                                 style={{
                                                     flexDirection: "column",
                                                 }}
