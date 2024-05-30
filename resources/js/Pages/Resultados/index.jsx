@@ -168,6 +168,9 @@ const Index = (props) => {
 
     const [dataFilter, setDataFilter] = useState([]);
     const [totalesVR, setTotalesVR] = useState(0);
+    const [totalesVN, setTotalesVN] = useState(0);
+    const [totalesValidos, setTotalesValidos] = useState(0);
+
     useEffect(() => {
         //console.log("dataResultadosEleccion", dataFilter);
         let totalVotos = 0;
@@ -175,6 +178,18 @@ const Index = (props) => {
             totalVotos += registro.total;
         });
         setTotalesVR(totalVotos);
+        let totalVotosNulos = 0;
+        dataFilter.forEach((registro) => {
+            if (registro.nombrePartidoOCoal === "VOTOS NULOS") {
+                totalVotosNulos += registro.total;
+            }
+        });
+        setTotalesVN(totalVotosNulos);
+
+        let votosValidos = 0;
+        votosValidos = totalVotos - totalVotosNulos;
+        setTotalesValidos(votosValidos);
+
         let agrupado = dataFilter.reduce((acumulador, item) => {
             let nombre = item.nombrePartidoOCoal;
             if (!acumulador[nombre]) {
@@ -758,16 +773,36 @@ const Index = (props) => {
                                     datos={dataFilter}
                                 />
                                 <Row className="mt-2 mt-md-2 mt-lg-2">
-                                    <Col md={{ span: 4, offset: 8 }}>
+                                    <Col md={{ span: 8, offset: 4 }}>
                                         <Table>
                                             <tbody>
                                                 <tr>
-                                                    <td style={cellStyles}>
-                                                        Total de votos
-                                                        registrados
+                                                    <td>
+                                                        <td style={cellStyles}>
+                                                            Total de votos
+                                                            validos
+                                                        </td>
+                                                        <td style={cellStyles2}>
+                                                            {totalesValidos}
+                                                        </td>
                                                     </td>
-                                                    <td style={cellStyles2}>
-                                                        {totalesVR}
+                                                    <td>
+                                                        <td style={cellStyles}>
+                                                            Total de votos nulos
+                                                        </td>
+                                                        <td style={cellStyles2}>
+                                                            {totalesVN}
+                                                        </td>
+                                                    </td>
+
+                                                    <td>
+                                                        <td style={cellStyles}>
+                                                            Total de votos
+                                                            registrados
+                                                        </td>
+                                                        <td style={cellStyles2}>
+                                                            {totalesVR}
+                                                        </td>
                                                     </td>
                                                 </tr>
                                             </tbody>
