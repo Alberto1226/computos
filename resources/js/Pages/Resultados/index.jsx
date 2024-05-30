@@ -925,7 +925,7 @@ const Index = (props) => {
                                                     {" "}
                                                     <img
                                                         //src={`/storage/app/public/${row.img}`}
-                                                        src={`public/storage/${partido.imagen}`}
+                                                        src={`https://controldegastos.shop/computos/public/storage/${partido.imagen}`}
                                                         alt="Imagen del partido"
                                                         style={{
                                                             width: "30px",

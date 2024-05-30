@@ -641,7 +641,7 @@ export default function Dashboard({ auth }) {
                     <div style={{ display: "flex", alignItems: "center" }}>
                     <img
                         //src={`/storage/app/public/${row.img}`}
-                        src={`public/storage/${row.imagenPartido}`}
+                        src={`https://controldegastos.shop/computos/public/storage/${row.imagenPartido}`}
                         alt="Imagen del partido"
                         style={{
                             width: "30px",
