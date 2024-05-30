@@ -128,7 +128,7 @@ const Index = () => {
             cell: (row) => (
                 <>
                     <img
-                        src={`/storage/app/public/${row.img}`}
+                        src={`https://controldegastos.shop/computos/public/storage/app/public/${row.img}`}
                         //src={`/storage/${row.img}`}
                         alt="Imagen del partido"
                         style={{
