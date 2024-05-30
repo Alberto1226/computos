@@ -13,6 +13,7 @@ const Index = () => {
     const [NombrePartido, setNombrePartido] = useState("");
     const [AbreviaturaPartido, setAbreviaturaPartido] = useState("");
     const [ColorPartido, setColorPartido] = useState("#aabbcc");
+    const [selectedFile, setSelectedFile] = useState(null);
 
     const [modalOpen, setModalOpen] = useState(false);
 
@@ -26,11 +27,17 @@ const Index = () => {
         setModalOpen(false);
     };
 
+    const handleFileChange = (event) => {
+        console.log(event.target.files[0]);
+        setSelectedFile(event.target.files[0]);
+    };
+
     const AgregarPartidoPolitico = () => {
         const formData = new FormData();
         formData.append("nombre", NombrePartido);
         formData.append("abreviatura", AbreviaturaPartido);
         formData.append("color", ColorPartido);
+        formData.append("imagen", selectedFile);
         axios
             .post(
                 route("PartidosPoliticos.PartidosPoliticos.store"),
@@ -47,6 +54,7 @@ const Index = () => {
                     setNombrePartido("");
                     setAbreviaturaPartido("");
                     setColorPartido("");
+                    setSelectedFile("");
 
                     Swal.fire({
                         title: response.data.message,
@@ -92,6 +100,7 @@ const Index = () => {
                     nombrePartido: PartidoPolitico.nombrePartido,
                     abreviatura: PartidoPolitico.abrebiatura,
                     color: PartidoPolitico.color,
+                    img: PartidoPolitico.imagen,
                 }));
                 // Establecer los departamentos en el estado
                 setDataPartidosPoliticos(formattedData);
@@ -115,6 +124,22 @@ const Index = () => {
             selector: (row) => row.abreviatura,
         },
         {
+            name: "Imagen",
+            cell: (row) => (
+                <>
+                    <img
+                        //src={`/storage/app/public/${row.img}`}
+                        src={`/storage/${row.img}`}
+                        alt="Imagen del partido"
+                        style={{
+                            width: "30px",
+                            height: "30px",
+                        }}
+                    />
+                </>
+            ),
+        },
+        {
             name: "Color",
             cell: (row) => (
                 <>
@@ -123,7 +148,6 @@ const Index = () => {
                             backgroundColor: row.color,
                             width: "20px",
                             height: "20px",
-                            
                         }}
                     ></div>
                 </>
@@ -173,17 +197,17 @@ const Index = () => {
 
     const ActualizaPartidoPolitico = () => {
         const id = PartidoPoliticoSeleccionado?.id; // Obtener el ID del partido politico seleccionado
-
+        const formData = new FormData();
+        formData.append("nombre", NombrePartido);
+        formData.append("abreviatura", AbreviaturaPartido);
+        formData.append("color", ColorPartido);
+        formData.append("imagen", selectedFile);
         axios
-            .put(
+            .post(
                 route(`PartidosPoliticos.PartidosPoliticos.update`, { id: id }),
-                null,
+                formData,
                 {
-                    params: {
-                        nombre: NombrePartido,
-                        abreviatura: AbreviaturaPartido,
-                        color: ColorPartido,
-                    },
+                 
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },
@@ -338,6 +362,18 @@ const Index = () => {
                                     onChange={(event) =>
                                         setColorPartido(event.target.value)
                                     }
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="ImagenPartidoInput">
+                                    Imagen <code>*</code>
+                                </label>
+                                <input
+                                    type="file"
+                                    className="form-control form-control-border"
+                                    id="ImagenPartidoInput"
+                                    accept=".pdf, .jpeg, .png, .jpg"
+                                    onChange={handleFileChange}
                                 />
                             </div>
                         </form>

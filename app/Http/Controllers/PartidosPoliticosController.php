@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+
 class PartidosPoliticosController extends Controller
 {
     /**
@@ -35,7 +36,7 @@ class PartidosPoliticosController extends Controller
             'nombre' => 'required|string',
             'abreviatura' => 'required|string',
             'color' => 'required|string',
-            
+
         ]);
 
         $id = Auth::user()->id;
@@ -45,6 +46,14 @@ class PartidosPoliticosController extends Controller
         $partido->abrebiatura = $request->abreviatura;
         $partido->color = $request->color;
         $partido->id_user = $id;
+
+        if ($request->hasFile('imagen')) {
+            $imagen = $request->file('imagen');
+            $nombreImagen = time() . '.' . $imagen->getClientOriginalExtension();
+            $destinoPath = storage_path('app/public'); // Cambiado aquí
+            $imagen->move($destinoPath, $nombreImagen);
+            $partido->imagen = $nombreImagen; // Guardar el nombre de la imagen en la base de datos
+        }
 
         // Guardar el partido en la base de datos
         $partido->save();
@@ -82,17 +91,27 @@ class PartidosPoliticosController extends Controller
             'nombre' => 'required|string',
             'abreviatura' => 'required|string',
             'color' => 'required|string',
+            'imagen' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validación para el archivo de imagen
         ]);
 
         $partido->nombrePartido = $request->nombre;
         $partido->abrebiatura = $request->abreviatura;
         $partido->color = $request->color;
-        
+
+        // Actualizar la imagen si se proporcionó una nueva
+        if ($request->hasFile('imagen')) {
+            $imagen = $request->file('imagen');
+            $nombreImagen = time() . '.' . $imagen->getClientOriginalExtension();
+            $destinoPath = storage_path('app/public'); // Cambiado aquí
+            $imagen->move($destinoPath, $nombreImagen);
+            $partido->imagen = $nombreImagen; // Actualizar el nombre de la imagen en la base de datos
+        }
 
         $partido->save();
-        
-        return response()->json(['message' => 'Partido Politico actualizado Correctamente'], 200);
+
+        return response()->json(['message' => 'Partido Politico actualizado correctamente'], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.

@@ -8,6 +8,7 @@ use Illuminate\Http\Response;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 class TipoEleccionController extends Controller
 {
     /**
@@ -105,10 +106,11 @@ class TipoEleccionController extends Controller
 
     public function resetDatabase()
     {
-        Artisan::call('migrate:fresh');
-
+        DB::table('resultados')->truncate();
+        DB::table('casilla')->truncate();
+    
         return response()->json([
-            'message' => 'La base de datos ha sido reiniciada'
+            'message' => 'Las tablas han sido truncadas'
         ]);
     }
 }

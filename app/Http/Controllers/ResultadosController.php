@@ -32,27 +32,37 @@ class ResultadosController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $id = Auth::user()->id;
-        $totales = $request->input('totales');
-        foreach ($totales as $total) {
-            $des = DistritosModel::findOrFail($total['id_distrito']);
-            $regTotales = new ResultadosModel();
-            $regTotales->id_casilla = $total['id_casilla'];
-            $regTotales->id_partido = $total['id_partido'];
-            $regTotales->id_coalicion = $total['id_coalicion'];
-            $regTotales->id_eleccion = $total['id_eleccion'];
-            $regTotales->total = $total['total'];
-            $regTotales->id_user = $id;
-            $regTotales->save();
-            $des->avanceVotos += $total['total'];
-            $des->save();
+{
+    $id = Auth::user()->id;
+    $totales = $request->input('totales');
+    $todosCero = true; // Asumimos que todos son cero hasta que se demuestre lo contrario
 
-            $casilla = CasillasModel::findOrFail($total['id_casilla']);
-            $casilla->status = 1;
-            $casilla->save();
+    foreach ($totales as $total) {
+        if($total['total'] != 0) {
+            $todosCero = false; // Si encontramos un total distinto de cero, cambiamos la bandera
         }
+
+        $des = DistritosModel::findOrFail($total['id_distrito']);
+        $regTotales = new ResultadosModel();
+        $regTotales->id_casilla = $total['id_casilla'];
+        $regTotales->id_partido = $total['id_partido'];
+        $regTotales->id_coalicion = $total['id_coalicion'];
+        $regTotales->id_eleccion = $total['id_eleccion'];
+        $regTotales->total = $total['total'];
+        $regTotales->id_user = $id;
+        $regTotales->save();
+        $des->avanceVotos += $total['total'];
+        $des->save();
+
+        $casilla = CasillasModel::findOrFail($total['id_casilla']);
+        if($todosCero) {
+            $casilla->status = 2; // Si todos los totales son cero, actualizamos el estado a 2
+        } else {
+            $casilla->status = 1;
+        }
+        $casilla->save();
     }
+}
 
 
     /**
@@ -100,16 +110,19 @@ class ResultadosController extends Controller
             })
             ->join('casilla', 'resultados.id_casilla', '=', 'casilla.id')
             ->join('secciones', 'casilla.id_seccion', '=', 'secciones.id') // Nueva línea
+            //->join('distrito', 'secciones.id_distrito', '=', 'ditrito.id') // Nueva línea
             ->where('resultados.id_eleccion', $id_eleccion)
             ->select(
                 'resultados.*',
                 DB::raw('CASE WHEN resultados.id_partido != 0 THEN partidospoliticos.nombrePartido ELSE NULL END as nombrePartido'),
                 DB::raw('CASE WHEN resultados.id_partido != 0 THEN partidospoliticos.abrebiatura ELSE NULL END as abreviaturaPartido'),
                 DB::raw('CASE WHEN resultados.id_partido != 0 THEN partidospoliticos.color ELSE NULL END as colorPartido'),
+                DB::raw('CASE WHEN resultados.id_partido != 0 THEN partidospoliticos.imagen ELSE NULL END as imagenPartido'),
                 DB::raw('CASE WHEN resultados.id_coalicion != 0 THEN coaliciones.descripcion ELSE NULL END as nombreCoalicion'),
                 'secciones.descripcion as descripcionSeccion', // Nueva línea
                 'casilla.tipoCasilla as tipoDeCasilla',
                 'secciones.id as seccionCons',
+               
             )
             ->orderBy('secciones.descripcion')
             ->get();

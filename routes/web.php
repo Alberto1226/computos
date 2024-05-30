@@ -85,7 +85,7 @@ Route::prefix('PartidosPoliticos')->group(function () {
         Route::get('/', 'index')->name('PartidosPoliticos.PartidosPoliticos.index');
         Route::post('/save-partido', 'store')->name('PartidosPoliticos.PartidosPoliticos.store');
         Route::get('/listar-partidos', 'listarPartidos')->name('PartidosPoliticos.PartidosPoliticos.listarPartidos');
-        Route::put('/update-partido/{id}', 'update')->name('PartidosPoliticos.PartidosPoliticos.update');
+        Route::post('/update-partido/{id}', 'update')->name('PartidosPoliticos.PartidosPoliticos.update');
         Route::delete('/delete-partido/{id}', 'destroy')->name('PartidosPoliticos.PartidosPoliticos.destroy');
     });
 });
@@ -107,6 +107,7 @@ Route::prefix('Casillas')->group(function () {
         Route::post('/save-casilla', 'store')->name('Casillas.Casillas.store');
         Route::get('/listar-casillas', 'listarCasillas')->name('Casillas.Casillas.listarCasillas');
         Route::put('/update-casilla/{id}', 'update')->name('Casillas.Casillas.update');
+        Route::put('/update-status/{id}', 'updateStatusToTwo')->name('Casillas.Casillas.updateStatusToTwo');
         Route::delete('/delete-casilla/{id}', 'destroy')->name('Casillas.Casillas.destroy');
         Route::post('/upload-csv', 'storeFromCSV')->name('Casillas.Casillas.storeFromCSV');
         Route::get('/listCasillasSeccion/{id_seccion}', 'listarCasillaPorSeccion')->name('Casillas.Casillas.listarCasillaPorSeccion');

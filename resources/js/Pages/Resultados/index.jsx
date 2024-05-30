@@ -143,6 +143,7 @@ const Index = (props) => {
                         : distrtio.nombreCoalicion,
                     abreviaturaPartido: distrtio.abreviaturaPartido,
                     colorPartido: distrtio.colorPartido,
+                    imagenPartido: distrtio.imagenPartido,
                     seccionCons: distrtio.seccionCons,
                     descripcionSeccion: distrtio.descripcionSeccion,
                     tipoDeCasilla: distrtio.tipoDeCasilla,

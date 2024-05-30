@@ -11,10 +11,12 @@ const Index = () => {
     const [modo, setModo] = useState("");
     const [reloadData, setReloadData] = useState(false);
 
-    const [id_seccion, setIdSeccion] = useState("");
+    const [id_seccion, setIdSeccion] = useState(0);
+    console.log("first", id_seccion);
     const [tipoCasilla, setTipoCasilla] = useState("");
 
     const [votosNulos, setVotosNulos] = useState("");
+
     const [votosTotales, setVotosTotales] = useState("");
     const [ubicacion, setUbicacion] = useState("");
 
@@ -23,7 +25,10 @@ const Index = () => {
     const [CasillaSeleccionada, setCasillaSeleccionada] = useState(null);
 
     const [modalEliminacion, setModalEliminacion] = useState(false);
+    const [modalIlegile, setModalIlegible] = useState(false);
     const [idDetelete, setIdDetelete] = useState(null);
+
+    const [ilegible, setIlegible] = useState("");
 
     const handleCloseModal = () => {
         setModalOpen(false);
@@ -32,6 +37,7 @@ const Index = () => {
     const AgregarCasilla = () => {
         const formData = new FormData();
         formData.append("id_seccion", id_seccion);
+
         formData.append("tipoCasilla", tipoCasilla);
 
         formData.append("votosNulos", votosNulos);
@@ -150,13 +156,18 @@ const Index = () => {
             selector: (row) => (
                 <>
                     <div>
-                        
                         <div
                             style={{
                                 height: "30px",
                                 width: "30px",
                                 backgroundColor:
-                                    row.status === 0 ? "red" : "green",
+                                    row.status === 0
+                                        ? "red"
+                                        : row.status === 1
+                                        ? "green"
+                                        : row.status === 2
+                                        ? "orange"
+                                        : "white", // Si el estado es 2, el color será anaranjado. Si no es ninguno de los anteriores, será blanco.
                                 borderRadius: "50%",
                             }}
                         />
@@ -175,12 +186,17 @@ const Index = () => {
             cell: (row) => (
                 <>
                     <button
+                        className="btn btn-info btn-xs"
+                        onClick={() => Statusup(row.id)}
+                    >
+                        <span className="fas fa-eye-slash"></span> Ilegible
+                    </button>
+                    <button
                         className="btn btn-warning btn-xs"
                         onClick={() => handleEdit(row)}
                     >
                         <span className="fas fa-edit"></span> Editar
                     </button>
-
                     <button
                         className="btn btn-danger btn-xs"
                         onClick={() => handleDelete(row.id)}
@@ -203,12 +219,12 @@ const Index = () => {
         if (modo === "Editar" && CasillaSeleccionada) {
             setIdSeccion(CasillaSeleccionada.id_seccion);
             setTipoCasilla(CasillaSeleccionada.tipoCasilla);
-
+            setIlegible(CasillaSeleccionada.status);
             setUbicacion(CasillaSeleccionada.ubicacion);
         } else {
             setIdSeccion("");
             setTipoCasilla("");
-
+            setIlegible("");
             setVotosNulos("");
             setVotosTotales("");
             setUbicacion("");
@@ -227,6 +243,7 @@ const Index = () => {
                     votosNulos: votosNulos,
                     votosTotales: votosTotales,
                     ubicacion: ubicacion,
+                    status: ilegible,
                 },
                 headers: {
                     "Content-Type": "multipart/form-data",
@@ -263,6 +280,31 @@ const Index = () => {
     const handleDelete = (idDetelete) => {
         setIdDetelete(idDetelete);
         setModalEliminacion(true);
+    };
+    const Statusup = (idDetelete) => {
+        setIlegible(idDetelete);
+        setModalIlegible(true);
+    };
+
+    const handleConfitupdateStatus = () => {
+        const id = ilegible;
+        axios
+            .put(route(`Casillas.Casillas.updateStatusToTwo`, { id }))
+            .then((response) => {
+                if (response.status === 200) {
+                    setReloadData(true);
+                    Swal.fire({
+                        title: "Actualizada a Ilegible correctamente",
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1600,
+                    });
+                    setModalIlegible(false);
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
     };
 
     const handleConfirmDelete = () => {
@@ -399,7 +441,11 @@ const Index = () => {
                                         value: `${role.id} `,
                                         label: `${role.value}`,
                                     }))}
-                                    preDefaultValue={parseInt(id_seccion)}
+                                    preDefaultValue={dataSeccion.find(
+                                        (role) =>
+                                            role.id.toString() ===
+                                            id_seccion.toString()
+                                    )}
                                     setValue={handleSelectChange}
                                     //isDisabled={depFiltro}
                                 />
@@ -451,6 +497,7 @@ const Index = () => {
                                     }
                                 />
                             </div>
+
                             <div className="form-group">
                                 <label htmlFor="UbicacionInput">
                                     Ubicacion<code>*</code>
@@ -485,6 +532,27 @@ const Index = () => {
                     }
                 >
                     <p>¿Estás seguro de que quieres eliminar la casilla?</p>
+                </ModalCustom>
+
+                <ModalCustom
+                    isOpen={modalIlegile}
+                    onClose={() => setModalIlegible(false)}
+                    title=""
+                    btnfooter={
+                        <>
+                            <button
+                                className="btn btn-danger"
+                                onClick={() => handleConfitupdateStatus()}
+                            >
+                                Actualizar
+                            </button>
+                        </>
+                    }
+                >
+                    <p>
+                        ¿Estás seguro de que quieres poner como ilegible el
+                        acta?
+                    </p>
                 </ModalCustom>
             </Authenticated>
         </>

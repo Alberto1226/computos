@@ -1,8 +1,9 @@
 import React from "react";
 import { Line, Bar, Pie, Doughnut } from "react-chartjs-2";
 import 'chart.js/auto';
+import 'chartjs-plugin-datalabels'; // Importa el plugin
 
-const DynamicChart = ({ frecuencias, etiquetas, chartType, chartTitle, titInfo, bgColor,alto }) => {
+const DynamicChart = ({ frecuencias, etiquetas, chartType, chartTitle, titInfo, bgColor, alto }) => {
   const data = {
     labels: etiquetas,
     datasets: [
@@ -15,6 +16,9 @@ const DynamicChart = ({ frecuencias, etiquetas, chartType, chartTitle, titInfo, 
     ],
   };
 
+  // Calcula el total de los datos
+  const total = frecuencias.reduce((a, b) => a + b, 0);
+
   const chartOptions = {
     responsive: true,
     plugins: {
@@ -23,7 +27,13 @@ const DynamicChart = ({ frecuencias, etiquetas, chartType, chartTitle, titInfo, 
       },
       title: {
         display: true,
-        text: chartTitle,
+        text: chartType === 'bar' ? chartTitle + ' (Total: ' + total + ')' : chartTitle, // Muestra el total solo para gráficos de barras
+      },
+      datalabels: {
+        color: '#fff',
+        formatter: (value, context) => {
+          return value; // Muestra el valor total
+        },
       },
     },
   };
@@ -46,7 +56,6 @@ const DynamicChart = ({ frecuencias, etiquetas, chartType, chartTitle, titInfo, 
       break;
     default:
       ChartComponent = Line;
-
   }
   return (
     <div className="flex justify-center items-center" style={{maxHeight: alto}}>

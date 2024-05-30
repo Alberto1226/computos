@@ -123,6 +123,7 @@ class CasillasController extends Controller
             'votosNulos' => 'nullable|int',
             'votosTotales' => 'nullable|int',
             'ubicacion' => 'required|string',
+
         ]);
 
         $casilla = CasillasModel::find($id);
@@ -133,9 +134,24 @@ class CasillasController extends Controller
         $casilla->votosTotales = $request->votosTotales;
         $casilla->ubicacion = $request->ubicacion;
 
+
         $casilla->save();
 
         return response()->json(['message' => 'Casilla actualizada correctamente'], 200);
+    }
+
+    public function updateStatusToTwo(string $id)
+    {
+        $casilla = CasillasModel::find($id);
+
+        if ($casilla) {
+            $casilla->status = 2;
+            $casilla->save();
+
+            return response()->json(['message' => 'El status de la casilla se actualizó correctamente a 2'], 200);
+        } else {
+            return response()->json(['message' => 'No se encontró la casilla con el ID proporcionado'], 404);
+        }
     }
 
     /**
@@ -154,7 +170,7 @@ class CasillasController extends Controller
     {
         $seccionesConDistrito = DB::table('casilla')
             ->join('secciones', 'casilla.id_seccion', '=', 'secciones.id')
-            ->select('casilla.id', 'casilla.ubicacion', 'casilla.id_seccion','casilla.status', 'casilla.tipoCasilla', 'casilla.listaNominal', 'secciones.descripcion')
+            ->select('casilla.id', 'casilla.ubicacion', 'casilla.id_seccion', 'casilla.status', 'casilla.tipoCasilla', 'casilla.listaNominal', 'secciones.descripcion')
             ->get();
         // Devolver las secciones como respuesta JSON
         return response()->json($seccionesConDistrito);
@@ -167,7 +183,7 @@ class CasillasController extends Controller
         $seccionesConDistrito = DB::table('casilla')
             ->join('secciones', 'casilla.id_seccion', '=', 'secciones.id')
             ->where('casilla.id_seccion', $id_seccion)
-            ->where('casilla.status', 0)
+            ->where('casilla.status', '<>',1)
             ->select('casilla.id', 'casilla.id_seccion', 'casilla.tipoCasilla', 'casilla.listaNominal', 'secciones.descripcion')
             ->get();
 

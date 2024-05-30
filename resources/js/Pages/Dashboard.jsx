@@ -13,14 +13,19 @@ import DataTablecustom from "@/Components/Generales/DataTable";
 export default function Dashboard({ auth }) {
     const [distrito, setDistrito] = useState(null);
     const [dataDist, setDataDist] = useState([]);
-
+    
+    const [totalVotantes, setTotalVotantes]= useState([]);
+    
     // Listado de Departamentos
+   
+    
     const getDistritos = async () => {
         try {
             const response = await axios.get(
                 `${route("Distritos.Distritos.listarDistritos")}`
             );
             if (response.status === 200) {
+               
                 // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
                 const formattedData = response.data.map((distrtio) => ({
                     id: distrtio.id,
@@ -30,6 +35,8 @@ export default function Dashboard({ auth }) {
                 }));
                 // Establecer los departamentos en el estado
                 setDataDist(formattedData);
+                setTotalVotantes(response.data[0].votosTotales);
+                
             }
         } catch (error) {
             console.log(error);
@@ -54,7 +61,7 @@ export default function Dashboard({ auth }) {
                 `${route("Casillas.Casillas.countCasillas")}`
             );
             if (response.status === 200) {
-                console.log("Response data:", response.data);
+                
                 //setTotalCasillas(response);
                 // Acceder a las propiedades `totalCasillas` y `avanceCasillas`
                 const { totalCasillas, avanceCasillas } = response.data;
@@ -141,7 +148,7 @@ export default function Dashboard({ auth }) {
     const [totalAvance, setTotalAvance] = useState(0);
     const [porcentaje, setPorcentaje] = useState(0);
     const [datosGraph, setDatosGraph] = useState([]);
-    console.log("datosGraoh", datosGraph);
+    
     const [etiquetasGraph, setEtiquetasGraph] = useState([]);
     useEffect(() => {
         if (distrito) {
@@ -318,6 +325,7 @@ export default function Dashboard({ auth }) {
                         : distrtio.nombreCoalicion,
                     abreviaturaPartido: distrtio.abreviaturaPartido,
                     colorPartido: distrtio.colorPartido,
+                    imagenPartido: distrtio.imagenPartido,
                     seccionCons: distrtio.seccionCons,
                     descripcionSeccion: distrtio.descripcionSeccion,
                     tipoDeCasilla: distrtio.tipoDeCasilla,
@@ -329,10 +337,12 @@ export default function Dashboard({ auth }) {
             console.log(error);
         }
     };
+    
 
     const [dataAgrupadaVotos, setDataAgrupadaVotos] = useState([]);
     console.log("first", dataAgrupadaVotos);
     const getResultadosEleccionesagrupado = async (tipo) => {
+        
         try {
             const response = await axios.get(
                 `${route("Resultados.Resultados.listarPorTipoEleccion", {
@@ -340,6 +350,7 @@ export default function Dashboard({ auth }) {
                 })}`
             );
             if (response.status === 200) {
+                console.log('votos capturados', response)
                 // Mapear los datos de respuesta para crear un nuevo arreglo de objetos
                 const formattedData = response.data.map((distrtio) => ({
                     id: distrtio.id,
@@ -353,6 +364,7 @@ export default function Dashboard({ auth }) {
                         : distrtio.nombreCoalicion,
                     abreviaturaPartido: distrtio.abreviaturaPartido,
                     colorPartido: distrtio.colorPartido,
+                    imagenPartido: distrtio.imagenPartido,
                     seccionCons: distrtio.seccionCons,
                     descripcionSeccion: distrtio.descripcionSeccion,
                     tipoDeCasilla: distrtio.tipoDeCasilla,
@@ -365,14 +377,14 @@ export default function Dashboard({ auth }) {
                         if (acumulador[item.id_partido]) {
                             acumulador[item.id_partido].total += item.total;
                             // Asegúrate de que el color del partido se mantenga constante
-                            acumulador[item.id_partido].colorPartido =
-                                item.colorPartido;
+                            acumulador[item.id_partido].imagenPartido =
+                                item.imagenPartido;
                         } else {
                             // Si el partido no existe en el acumulador, agrega un nuevo objeto
                             acumulador[item.id_partido] = {
                                 nombrePartidoOCoal: item.nombrePartidoOCoal,
                                 total: item.total,
-                                colorPartido: item.colorPartido,
+                                imagenPartido: item.imagenPartido,
                             };
                         }
                         return acumulador;
@@ -622,14 +634,15 @@ export default function Dashboard({ auth }) {
             cell: (row) => (
                 <>
                     <div style={{ display: "flex", alignItems: "center" }}>
-                        <div
-                            style={{
-                                backgroundColor: row.colorPartido,
-                                width: "20px",
-                                height: "20px",
-                                marginRight: "10px",
-                            }}
-                        ></div>
+                    <img
+                        //src={`/storage/app/public/${row.img}`}
+                        src={`/storage/${row.imagenPartido}`}
+                        alt="Imagen del partido"
+                        style={{
+                            width: "30px",
+                            height: "30px",
+                        }}
+                    />&nbsp;&nbsp;
                         <span>{row.nombrePartidoOCoal}</span>
                     </div>
                 </>
@@ -638,9 +651,24 @@ export default function Dashboard({ auth }) {
       
 
         {
-            name: "TOTAL DE VOTOS",
+            name: "TOTAL DE VOTOS POR CANDIDATURA",
             selector: (row) => row.total,
         },
+        {
+            name: "PORCENTAJE DE VOTOS POR CANDIDATURA",
+            cell: (row) => {
+                // Calcular el porcentaje
+                let porcentaje = (row.total / totalVotantes) * 100;
+        
+                return (
+                    <>
+                     <b>{`${porcentaje.toFixed(2)}%`}</b>
+                       
+                    </>
+                );
+            }
+        }
+        
         /*{
             name: "Actions",
             cell: (row) => (
@@ -887,7 +915,7 @@ export default function Dashboard({ auth }) {
                                                                     cellStyles
                                                                 }
                                                             >
-                                                                Total de votos
+                                                                Avance Total de votos
                                                                 registrados
                                                             </td>
                                                             <td
@@ -931,6 +959,7 @@ export default function Dashboard({ auth }) {
                                                     "TOTALES DE VOTOS PARA PARTIDOS POLITICOS Y COALICIONES"
                                                 }
                                                 alto={"450px"}
+                                                total={totalLista}
                                             />
                                         ) : (
                                             <p>Cargando...</p>
@@ -985,13 +1014,13 @@ export default function Dashboard({ auth }) {
                                                     </h5>
 
                                                     <span className="description-text text-2xs">
-                                                        Avance
+                                                        Avance Total de votos registrados
                                                     </span>
                                                 </div>
                                             </div>
                                             <div className="col-sm-4 ">
                                                 <div className="description-block">
-                                                    <h5 className="description-header">
+                                                    <h5 className="description-header" style={{color:"red"}}>
                                                         {porcentaje}%
                                                     </h5>
                                                     <span className="description-text text-xs">
@@ -1011,7 +1040,7 @@ export default function Dashboard({ auth }) {
                                                         "#E1E1E1",
                                                     ]}
                                                     chartTitle={
-                                                        "Avances de votos registrados"
+                                                        "Participación ciudadana"
                                                     }
                                                     alto={"300px"}
                                                 />
@@ -1051,7 +1080,7 @@ export default function Dashboard({ auth }) {
                                             </div>
                                             <div className="col-sm-4">
                                                 <div className="description-block">
-                                                    <h5 className="description-header">
+                                                    <h5 className="description-header" style={{color:"red"}}>
                                                         {TotalVotosNoNulos}
                                                     </h5>
                                                     <span className="description-text text-xs">
