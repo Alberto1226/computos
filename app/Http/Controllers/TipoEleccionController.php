@@ -9,6 +9,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+
 class TipoEleccionController extends Controller
 {
     /**
@@ -33,24 +34,24 @@ class TipoEleccionController extends Controller
     public function store(Request $request)
     {
         $id = Auth::user()->id;
-        
-            // Validar los datos de la solicitud
-            $request->validate([
-                'nombreEleccion' => 'required|string',
-                
-            ]);
-           
-            // Crear una nueva instancia de DivisionesDepartamentos y asignar los valores de la solicitud
-            $eleccion = new TipoEleccionModel();
-            $eleccion->nombreEleccion = $request->nombreEleccion;
-            $eleccion->id_user = $id;
-            // Guardar el registro en la base de datos
-            $eleccion->save();
-            // Retornar una respuesta adecuada
-            return redirect()->route('Elecciones.Elecciones.index')->with('success', 'Registro exitoso');
+
+        // Validar los datos de la solicitud
+        $request->validate([
+            'nombreEleccion' => 'required|string',
+
+        ]);
+
+        // Crear una nueva instancia de DivisionesDepartamentos y asignar los valores de la solicitud
+        $eleccion = new TipoEleccionModel();
+        $eleccion->nombreEleccion = $request->nombreEleccion;
+        $eleccion->id_user = $id;
+        // Guardar el registro en la base de datos
+        $eleccion->save();
+        // Retornar una respuesta adecuada
+        return redirect()->route('Elecciones.Elecciones.index')->with('success', 'Registro exitoso');
     }
 
-    
+
     public function listarElecciones()
     {
         $resultados = TipoEleccionModel::get();
@@ -80,14 +81,14 @@ class TipoEleccionController extends Controller
     {
         // Validar los datos de la solicitud utilizando reglas de validación
         $request->validate([
-            'nombreEleccion' => 'required|string', 
+            'nombreEleccion' => 'required|string',
         ]);
 
         $des = TipoEleccionModel::findOrFail($id);
-        $des->nombreEleccion = $request->nombreEleccion; 
+        $des->nombreEleccion = $request->nombreEleccion;
         $des->save();
         // Otra opción: si estás construyendo una API y deseas devolver una respuesta JSON, puedes usar esto en su lugar
-         return response()->json(['message' => 'Tipo Eleccion actualizado con éxito'], 200);
+        return response()->json(['message' => 'Tipo Eleccion actualizado con éxito'], 200);
     }
 
     /**
@@ -106,11 +107,15 @@ class TipoEleccionController extends Controller
 
     public function resetDatabase()
     {
+        // Truncar las tablas 'resultados' y 'casilla'
         DB::table('resultados')->truncate();
         DB::table('casilla')->truncate();
-    
+
+        // Actualizar el campo 'avanceVotos' de la tabla 'distrito'
+        DB::table('distrito')->update(['avanceVotos' => 0]);
+
         return response()->json([
-            'message' => 'Las tablas han sido truncadas'
+            'message' => 'Las tablas han sido truncadas y el avance de votos ha sido reiniciado'
         ]);
     }
 }
