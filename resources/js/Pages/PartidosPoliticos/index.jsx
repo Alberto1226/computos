@@ -128,8 +128,8 @@ const Index = () => {
             cell: (row) => (
                 <>
                     <img
-                        //src={`/storage/app/public/${row.img}`}
-                        src={`/storage/${row.img}`}
+                        src={`/storage/app/public/${row.img}`}
+                        //src={`/storage/${row.img}`}
                         alt="Imagen del partido"
                         style={{
                             width: "30px",
